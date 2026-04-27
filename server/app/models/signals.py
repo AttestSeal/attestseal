@@ -1,4 +1,4 @@
-"""Trust signal models matching the OTT protocol spec v0.2."""
+"""Trust signal models matching the ATS protocol spec v0.2."""
 
 from pydantic import BaseModel, Field
 from typing import Optional

@@ -2,7 +2,7 @@
 
 The API box tries direct httpx first (fast, cheap). On transient failure --
 timeout, TCP reset, 403/429/5xx -- it escalates to the crawler service
-running on ots-crawler-1 over the private VPC. The crawler runs real
+running on ats-crawler-1 over the private VPC. The crawler runs real
 headless Chromium, which bypasses sites that fingerprint httpx but doesn't
 help with IP-AS blocks. Tier 3 (Playwright-via-residential-proxy) is wired
 but gated behind a feature flag that stays off until proxy creds land.
@@ -41,13 +41,13 @@ def _load_env_file(path: str) -> dict:
     return env
 
 
-_CRAWLER_ENV = _load_env_file("/etc/opentrustseal/crawler.env")
-_DECODO_ENV = _load_env_file("/etc/opentrustseal/decodo.env")
-_MACBOOK_ENV = _load_env_file("/etc/opentrustseal/macbook.env")
-_SCRAPER_ENV = _load_env_file("/etc/opentrustseal/scraper.env")
+_CRAWLER_ENV = _load_env_file("/etc/attestseal/crawler.env")
+_DECODO_ENV = _load_env_file("/etc/attestseal/decodo.env")
+_MACBOOK_ENV = _load_env_file("/etc/attestseal/macbook.env")
+_SCRAPER_ENV = _load_env_file("/etc/attestseal/scraper.env")
 
-CRAWLER_URL = _CRAWLER_ENV.get("CRAWLER_URL") or os.environ.get("OTS_CRAWLER_URL", "")
-CRAWLER_SECRET = _CRAWLER_ENV.get("CRAWLER_SHARED_SECRET") or os.environ.get("OTS_CRAWLER_SECRET", "")
+CRAWLER_URL = _CRAWLER_ENV.get("CRAWLER_URL") or os.environ.get("ATS_CRAWLER_URL", "")
+CRAWLER_SECRET = _CRAWLER_ENV.get("CRAWLER_SHARED_SECRET") or os.environ.get("ATS_CRAWLER_SECRET", "")
 CRAWLER_ENABLED = bool(CRAWLER_URL and CRAWLER_SECRET)
 
 DECODO_HOST = _DECODO_ENV.get("DECODO_HOST", "")
@@ -62,7 +62,7 @@ DECODO_ENABLED = bool(DECODO_HOST and DECODO_PORT and DECODO_USER and DECODO_PAS
 # geographic diversity and redundancy. The API box tries each one
 # in round-robin order, skipping any whose circuit breaker is open.
 #
-# Config format in /etc/opentrustseal/macbook.env:
+# Config format in /etc/attestseal/macbook.env:
 #   MACBOOK_URL=http://100.125.118.64:8901          (single, backward compat)
 #   RESIDENTIAL_URLS=http://100.x:8901,http://100.y:8901,http://100.z:8901
 #
@@ -89,16 +89,16 @@ RESIDENTIAL_ENABLED = bool(RESIDENTIAL_URLS and MACBOOK_SECRET)
 # by Wayback, so security-header signals will read as zero for
 # wayback-sourced content -- see known follow-up in task backlog.
 #
-# Feature-flagged via OTS_ENABLE_WAYBACK_TIER for the initial rollout
+# Feature-flagged via ATS_ENABLE_WAYBACK_TIER for the initial rollout
 # so we can compare wayback-sourced signals against live-fetched signals
 # for domains where both work before making this a default tier.
-WAYBACK_ENABLED = os.environ.get("OTS_ENABLE_WAYBACK_TIER", "").lower() in ("1", "true", "yes", "on")
-WAYBACK_MAX_AGE_DAYS = int(os.environ.get("OTS_WAYBACK_MAX_AGE_DAYS", "60"))
+WAYBACK_ENABLED = os.environ.get("ATS_ENABLE_WAYBACK_TIER", "").lower() in ("1", "true", "yes", "on")
+WAYBACK_MAX_AGE_DAYS = int(os.environ.get("ATS_WAYBACK_MAX_AGE_DAYS", "60"))
 
 # Tier 6 (protocol probe): direct httpx to a deliberately-404 protocol-
 # standard path on the target origin. Most sites serve a static 404 error
 # shell from their base template, which contains the footer with the
-# privacy/terms/contact links OTT scores on. This works because bot
+# privacy/terms/contact links ATS scores on. This works because bot
 # protection (captchas, JS challenges, Turnstile) is typically applied to
 # the homepage and dynamic category pages, not to static error shells
 # served directly by the web server layer.
@@ -113,8 +113,8 @@ WAYBACK_MAX_AGE_DAYS = int(os.environ.get("OTS_WAYBACK_MAX_AGE_DAYS", "60"))
 # content_check because it's as cheap as tier 1 (one direct httpx call)
 # and supersedes the need for Playwright escalation when it works. The
 # tier numbering reflects order-of-implementation, not fetch-ladder order.
-PROBE_ENABLED = os.environ.get("OTS_ENABLE_PROBE_TIER", "").lower() in ("1", "true", "yes", "on")
-PROBE_PATH = os.environ.get("OTS_PROBE_PATH", "/.well-known/security.txt")
+PROBE_ENABLED = os.environ.get("ATS_ENABLE_PROBE_TIER", "").lower() in ("1", "true", "yes", "on")
+PROBE_PATH = os.environ.get("ATS_PROBE_PATH", "/.well-known/security.txt")
 
 # Commercial scraper tier. Runs AFTER wayback as the last-resort rescue
 # for the residual tail (petco-on-Spectrum, kohls-anywhere, etc). Gated
@@ -128,7 +128,7 @@ PROBE_PATH = os.environ.get("OTS_PROBE_PATH", "/.well-known/security.txt")
 # fetch_via_commercial_scraper.
 #
 # Ships dark: SCRAPER_ENABLED is false by default even if an API key is
-# configured. Flip to true in /etc/opentrustseal/scraper.env after
+# configured. Flip to true in /etc/attestseal/scraper.env after
 # validating in shadow mode.
 SCRAPER_PROVIDER = _SCRAPER_ENV.get("SCRAPER_PROVIDER", "").lower().strip()
 SCRAPER_API_KEY = _SCRAPER_ENV.get("SCRAPER_API_KEY", "").strip()
@@ -444,7 +444,7 @@ async def fetch_via_wayback(url: str, timeout_s: float = 25.0) -> Optional[Crawl
       brands but would be too stale for a new/changing site. Tier 5
       should only fire after tiers 1-4 have tried the live path.
 
-    The `x-ots-source` synthetic header on the returned shim tags the
+    The `x-ats-source` synthetic header on the returned shim tags the
     snapshot timestamp so downstream consumers (raw_signals, dashboards)
     can see where the data came from.
     """
@@ -508,8 +508,8 @@ async def fetch_via_wayback(url: str, timeout_s: float = 25.0) -> Optional[Crawl
             "status": 200,
             "body": snap_resp.text,
             "headers": {
-                "x-ots-source": f"wayback-{timestamp}",
-                "x-ots-snapshot-age-days": str((datetime.now(timezone.utc) - datetime.strptime(timestamp[:8], "%Y%m%d").replace(tzinfo=timezone.utc)).days),
+                "x-ats-source": f"wayback-{timestamp}",
+                "x-ats-snapshot-age-days": str((datetime.now(timezone.utc) - datetime.strptime(timestamp[:8], "%Y%m%d").replace(tzinfo=timezone.utc)).days),
                 "content-type": snap_resp.headers.get("content-type", "text/html"),
             },
             "final_url": original_url,
@@ -530,7 +530,7 @@ async def fetch_via_protocol_probe(url: str, timeout_s: float = 15.0) -> Optiona
     Direct httpx request to a deliberately-404 protocol-standard path
     on the target origin. Most sites serve a static 404 error shell
     containing the footer template (privacy/terms/contact/copyright),
-    which is exactly the content signal OTT scores on. Bot protection
+    which is exactly the content signal ATS scores on. Bot protection
     is almost never applied to static 404 responses because blocking
     them would break the site's own error handling for real users.
 
@@ -545,8 +545,8 @@ async def fetch_via_protocol_probe(url: str, timeout_s: float = 15.0) -> Optiona
     advantage over tier 5 (Wayback) which strips response headers.
 
     The returned shim tags the source as `probe-security-txt-<status>`
-    in the x-ots-source header, and preserves the original HTTP status
-    in x-ots-probe-status, so downstream consumers can distinguish a
+    in the x-ats-source header, and preserves the original HTTP status
+    in x-ats-probe-status, so downstream consumers can distinguish a
     real-200 from a 404-shell path.
     """
     if not PROBE_ENABLED:
@@ -627,14 +627,14 @@ async def fetch_via_protocol_probe(url: str, timeout_s: float = 15.0) -> Optiona
         payload = {
             # Force status 200 so content_check treats the shim as a
             # successful fetch. The real HTTP status is preserved in
-            # x-ots-probe-status for transparency.
+            # x-ats-probe-status for transparency.
             "status": 200,
             "body": body,
             "headers": {
                 **{str(k): str(v) for k, v in r.headers.items()},
-                "x-ots-source": source_tag,
-                "x-ots-probe-path": PROBE_PATH,
-                "x-ots-probe-status": str(original_status),
+                "x-ats-source": source_tag,
+                "x-ats-probe-path": PROBE_PATH,
+                "x-ats-probe-status": str(original_status),
             },
             "final_url": str(r.url),
             "redirect_count": 0,
@@ -702,7 +702,7 @@ async def _fetch_via_brightdata(url: str, timeout_s: float) -> Optional[CrawlerR
             "status": target_status,
             "body": r.text[:500_000],
             "headers": {
-                "x-ots-source": "scraper-brightdata",
+                "x-ats-source": "scraper-brightdata",
                 "x-brd-status-code": str(target_status),
                 "content-type": r.headers.get("content-type", "text/html"),
             },

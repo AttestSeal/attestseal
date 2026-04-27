@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export the OTT trust registry as an open dataset.
+"""Export the ATS trust registry as an open dataset.
 
 Usage:
     python3 export_dataset.py                    # Export to exports/
@@ -9,9 +9,9 @@ Usage:
     python3 export_dataset.py --format both      # Both (default)
 
 Outputs:
-    ots-trust-dataset-YYYY-MM-DD.csv
-    ots-trust-dataset-YYYY-MM-DD.json
-    ots-trust-dataset-YYYY-MM-DD.sha256
+    ats-trust-dataset-YYYY-MM-DD.csv
+    ats-trust-dataset-YYYY-MM-DD.json
+    ats-trust-dataset-YYYY-MM-DD.sha256
 
 The dataset includes every scored domain with its trust score, signal
 breakdown, recommendation, brand tier, crawlability status, and scoring
@@ -20,7 +20,7 @@ individual lookups). The SHA-256 manifest covers all output files so
 downloaders can verify integrity.
 
 Intended for publication on Hugging Face, GitHub Releases, or direct
-download from opentrustseal.com/data/.
+download from attestseal.com/data/.
 """
 
 import csv
@@ -32,7 +32,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-DB_PATH = Path(os.environ.get("OTS_DB_PATH", "./data/ots.db"))
+DB_PATH = Path(os.environ.get("ATS_DB_PATH", "./data/ots.db"))
 
 
 def _tranco_bucket(rep_score: int) -> str:
@@ -210,7 +210,7 @@ def main():
 
     out_dir.mkdir(parents=True, exist_ok=True)
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    base = f"ots-trust-dataset-{today}"
+    base = f"ats-trust-dataset-{today}"
 
     print(f"Exporting from {DB_PATH}...")
     results = load_scored_results(DB_PATH)
@@ -225,19 +225,19 @@ def main():
     deny = sum(1 for r in results if r["recommendation"] == "DENY")
 
     meta = {
-        "name": "OpenTrustSeal Trust Dataset",
+        "name": "AttestSeal Trust Dataset",
         "description": "Trust scores and signal data for web domains, "
-                       "produced by the OpenTrustSeal independent trust "
-                       "attestation API (api.opentrustseal.com).",
+                       "produced by the AttestSeal independent trust "
+                       "attestation API (api.attestseal.com).",
         "version": today,
         "totalDomains": len(results),
         "scoringModel": results[0]["scoringModel"] if results else "unknown",
         "scoreRange": {"min": min(scores), "max": max(scores), "mean": round(sum(scores) / len(scores), 1)},
         "distribution": {"PROCEED": proceed, "CAUTION": caution, "DENY": deny},
         "exportedAt": datetime.now(timezone.utc).isoformat() + "Z",
-        "source": "https://api.opentrustseal.com",
+        "source": "https://api.attestseal.com",
         "license": "CC-BY-4.0",
-        "methodology": "https://opentrustseal.com/docs/methodology",
+        "methodology": "https://attestseal.com/docs/methodology",
     }
 
     files_written = []

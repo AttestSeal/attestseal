@@ -6,15 +6,15 @@ Continuous replication of the production SQLite DB to Backblaze B2. RPO ~1 secon
 
 | Item | Path / identifier |
 |---|---|
-| Source DB | `/opt/opentrusttoken/data/ott.db` (API box, `ott-api-1`) |
+| Source DB | `/opt/attestseal/data/ott.db` (API box, `ats-api-1`) |
 | Litestream config | `/etc/litestream.yml` |
 | B2 credentials env | `/etc/default/litestream` (mode 600, root:root) |
 | Service unit | `litestream.service` (from the deb package) |
 | Unit override | `/etc/systemd/system/litestream.service.d/env.conf` |
-| B2 bucket | `ots-db-backup` |
+| B2 bucket | `ats-db-backup` |
 | B2 path prefix | `production/ott.db/` |
 | B2 region / endpoint | `us-west-004` / `s3.us-west-004.backblazeb2.com` |
-| B2 key name | `ots-db-litestream` (scoped to the one bucket only) |
+| B2 key name | `ats-db-litestream` (scoped to the one bucket only) |
 
 ## Operational commands
 
@@ -28,20 +28,20 @@ journalctl -u litestream -f --lines=50
 **Inspect replication state:**
 
 ```bash
-litestream generations -replica s3 /opt/opentrusttoken/data/ott.db
-litestream snapshots   -replica s3 /opt/opentrusttoken/data/ott.db
+litestream generations -replica s3 /opt/attestseal/data/ott.db
+litestream snapshots   -replica s3 /opt/attestseal/data/ott.db
 ```
 
 **Restore to a temp path** (safe, non-destructive):
 
 ```bash
-litestream restore -o /tmp/ott-test.db \
-  -replica s3 /opt/opentrusttoken/data/ott.db
+litestream restore -o /tmp/ats-test.db \
+  -replica s3 /opt/attestseal/data/ott.db
 
 # Then sanity-check row counts:
 python3 -c "
 import sqlite3
-c = sqlite3.connect('/tmp/ott-test.db')
+c = sqlite3.connect('/tmp/ats-test.db')
 for t in ['scored_results','raw_signals','tier6_gate','feedback']:
     print(t, c.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0])
 "
@@ -50,10 +50,10 @@ for t in ['scored_results','raw_signals','tier6_gate','feedback']:
 **Restore to a specific point in time** (within 72h window):
 
 ```bash
-litestream restore -o /tmp/ott-old.db \
+litestream restore -o /tmp/ats-old.db \
   -replica s3 \
   -timestamp 2026-04-21T12:00:00Z \
-  /opt/opentrusttoken/data/ott.db
+  /opt/attestseal/data/ott.db
 ```
 
 ## Disaster recovery -- rebuild from scratch
@@ -66,19 +66,19 @@ Scenario: the API box is gone. New empty box ready.
 
 ```bash
 source /etc/default/litestream
-mkdir -p /opt/opentrusttoken/data
-litestream restore -o /opt/opentrusttoken/data/ott.db \
-  s3://ots-db-backup/production/ott.db
-chown -R ott:ott /opt/opentrusttoken/data
+mkdir -p /opt/attestseal/data
+litestream restore -o /opt/attestseal/data/ott.db \
+  s3://ats-db-backup/production/ott.db
+chown -R ats:ats /opt/attestseal/data
 ```
 
-4. Start opentrusttoken + litestream. The new replica generation will continue from the restored state.
+4. Start attestseal + litestream. The new replica generation will continue from the restored state.
 
 ## Gotchas
 
 - **WAL mode is required.** The prod DB is already in WAL mode; any future code that touches it should set `PRAGMA journal_mode=WAL` at open time to prevent accidental mode drift. `database.py` should enforce this.
 - **Don't vacuum while Litestream is running.** `VACUUM` rewrites the whole DB and invalidates Litestream's WAL position tracking. It won't break anything, but it will trigger a full re-sync of the ~13 MB DB. Schedule vacuums in a maintenance window with litestream stopped.
-- **B2 key is scoped to this one bucket only.** If you create other OTS-related buckets (dataset backup, log archive), make new keys for them instead of broadening this one. Blast radius stays small on leak.
+- **B2 key is scoped to this one bucket only.** If you create other ATS-related buckets (dataset backup, log archive), make new keys for them instead of broadening this one. Blast radius stays small on leak.
 - **/etc/default/litestream contains the secret.** Mode 600, never commit, never copy outside the VPS without rewriting creds.
 
 ## Cost

@@ -8,7 +8,7 @@ Hi,
 
 Thank you for the heads-up. Happy to cooperate and reduce load.
 
-Quick context on the workload so we can find the right configuration. We are OpenTrustSeal, Inc. (California C-Corp), and we are building an open-source trust dataset for the Tranco top-1M domain list. The dataset is published under CC-BY-4.0 and will be used by AI agent developers to check merchant trust before automated payments. The distributed setup is intentional: we spread 10 instances across your global regions specifically so we can politely query country-local WHOIS servers from geographically close hosts, rather than hammering every TLD from a single region. Per-instance, each worker handles one domain at a time (one HTTP fetch, one WHOIS query, one DNS lookup, one SQLite write), with a target steady-state of roughly 40 queries per minute. The sustained runtime is what likely triggered your detector, not the QPS.
+Quick context on the workload so we can find the right configuration. We are AttestSeal, Inc. (California C-Corp), and we are building an open-source trust dataset for the Tranco top-1M domain list. The dataset is published under CC-BY-4.0 and will be used by AI agent developers to check merchant trust before automated payments. The distributed setup is intentional: we spread 10 instances across your global regions specifically so we can politely query country-local WHOIS servers from geographically close hosts, rather than hammering every TLD from a single region. Per-instance, each worker handles one domain at a time (one HTTP fetch, one WHOIS query, one DNS lookup, one SQLite write), with a target steady-state of roughly 40 queries per minute. The sustained runtime is what likely triggered your detector, not the QPS.
 
 Two asks:
 
@@ -20,8 +20,8 @@ In the meantime we are reducing each instance's worker pool to lower sustained C
 
 Thanks,
 Allen Lu
-OpenTrustSeal, Inc.
-alu@opentrustseal.com
+AttestSeal, Inc.
+alu@attestseal.com
 
 ---
 
@@ -42,9 +42,9 @@ ssh root@<vultr_ip> '
   pgrep -f crawl_seed | xargs -r kill -TERM
   sleep 3
   pgrep -f crawl_seed | xargs -r kill -KILL 2>/dev/null
-  cd /opt/ots-seed
-  nohup python3 crawl_seed.py /opt/ots-seed/domains.txt --workers 2 --resume \
-    > /var/log/ots-seed.log 2>&1 &
+  cd /opt/ats-seed
+  nohup python3 crawl_seed.py /opt/ats-seed/domains.txt --workers 2 --resume \
+    > /var/log/ats-seed.log 2>&1 &
   sleep 2
   pgrep -f crawl_seed | head -3
 '

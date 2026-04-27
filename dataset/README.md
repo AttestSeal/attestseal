@@ -1,6 +1,6 @@
-# OpenTrustSeal Trust Dataset
+# AttestSeal Trust Dataset
 
-Trust scores and signal data for 100,000+ web domains, produced by the [OpenTrustSeal](https://opentrustseal.com) independent trust attestation API.
+Trust scores and signal data for 100,000+ web domains, produced by the [AttestSeal](https://attestseal.com) independent trust attestation API.
 
 ## What this dataset contains
 
@@ -13,7 +13,7 @@ Every row represents a trust assessment of a web domain, scored across six signa
 | `domain` | string | The domain assessed (e.g., "stripe.com") |
 | `trustScore` | int | Composite trust score, 0-100 |
 | `recommendation` | string | PROCEED (75+), CAUTION (40-74), DENY (0-39) |
-| `scoringModel` | string | Model version used (e.g., "ots-v1.4-weights") |
+| `scoringModel` | string | Model version used (e.g., "attestseal-v1.4-weights") |
 | `brandTier` | string | "well_known" (brand anchor applied) or "scored" |
 | `crawlability` | string | "ok" (content fetched) or "blocked" (bot protection prevented fetch) |
 | `checkedAt` | ISO 8601 | When the assessment was performed |
@@ -67,11 +67,11 @@ The trust score is a weighted composite of six signal categories:
 
 **Consensus tier (v1.4):** Tranco top-100 domains with 10+ years of age receive an elevated identity ceiling, spreading scores into the 80-90 range.
 
-Full methodology: [opentrustseal.com/docs/methodology](https://opentrustseal.com/docs/methodology)
+Full methodology: [attestseal.com/docs/methodology](https://attestseal.com/docs/methodology)
 
 ## Data collection
 
-Domains are sourced from the [Tranco](https://tranco-list.eu/) top-100K list, which aggregates ranking data from Cloudflare, Umbrella, Majestic, and Quantcast. Each domain is assessed by the OpenTrustSeal pipeline, which collects signals from public data sources using a six-tier fetch escalation ladder (direct HTTP, headless Chrome, residential proxy, Internet Archive, protocol probes).
+Domains are sourced from the [Tranco](https://tranco-list.eu/) top-100K list, which aggregates ranking data from Cloudflare, Umbrella, Majestic, and Quantcast. Each domain is assessed by the AttestSeal pipeline, which collects signals from public data sources using a six-tier fetch escalation ladder (direct HTTP, headless Chrome, residential proxy, Internet Archive, protocol probes).
 
 Signal data is collected without site participation. No crawling credentials, API keys, or site-specific integrations are required. All signals are derived from publicly observable data.
 
@@ -94,8 +94,8 @@ You may use, share, and adapt this dataset for any purpose, including commercial
 
 **Citation:**
 ```
-OpenTrustSeal Trust Dataset (2026). OpenTrustSeal, Inc.
-https://opentrustseal.com
+AttestSeal Trust Dataset (2026). AttestSeal, Inc.
+https://attestseal.com
 ```
 
 ## API access
@@ -103,25 +103,25 @@ https://opentrustseal.com
 For real-time trust checks with signed evidence bundles, use the API:
 
 ```bash
-curl https://api.opentrustseal.com/v1/check/stripe.com
+curl https://api.attestseal.com/v1/check/stripe.com
 ```
 
 Python SDK:
 ```bash
-pip install opentrustseal
+pip install attestseal
 ```
 ```python
-from opentrustseal import check
+from attestseal import check
 result = check("stripe.com")
 print(result.trust_score, result.recommendation)
 ```
 
 Free tier: 60 requests/minute, 10,000 checks/month. No API key required.
 
-**API Docs:** [api.opentrustseal.com/docs](https://api.opentrustseal.com/docs)
+**API Docs:** [api.attestseal.com/docs](https://api.attestseal.com/docs)
 
 ## Contact
 
-OpenTrustSeal, Inc.
-alu@opentrustseal.com
-https://opentrustseal.com
+AttestSeal, Inc.
+alu@attestseal.com
+https://attestseal.com

@@ -1,4 +1,4 @@
-"""Trust scoring engine (model: ots-v1.2-weights).
+"""Trust scoring engine (model: attestseal-v1.2-weights).
 
 Scoring tiers:
   Layer 1: Automated signals             (max ~65 average site)
@@ -10,7 +10,7 @@ Scoring tiers:
 
 from .models.signals import SignalBundle
 
-SCORING_MODEL = "ots-v1.4-weights"
+SCORING_MODEL = "attestseal-v1.4-weights"
 
 WEIGHTS = {
     "domain_age": 0.10,

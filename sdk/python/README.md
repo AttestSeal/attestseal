@@ -1,17 +1,17 @@
-# OpenTrustSeal Python SDK
+# AttestSeal Python SDK
 
 Trust verification for AI agent commerce. One call to check if a site is safe to transact with.
 
 ## Install
 
 ```bash
-pip install opentrustseal
+pip install attestseal
 ```
 
 ## Quick Start
 
 ```python
-from opentrustseal import check
+from attestseal import check
 
 result = check("merchant.com")
 
@@ -56,13 +56,13 @@ for item in result.checklist:
 
 # Cryptographic proof
 result.signature  # "z3FXQ..." (Ed25519)
-result.issuer     # "did:web:opentrustseal.com"
+result.issuer     # "did:web:attestseal.com"
 ```
 
 ## Async
 
 ```python
-from opentrustseal import async_check
+from attestseal import async_check
 
 result = await async_check("merchant.com")
 ```
@@ -70,7 +70,7 @@ result = await async_check("merchant.com")
 ## With API Key
 
 ```python
-from opentrustseal import OTSClient
+from attestseal import OTSClient
 
 client = OTSClient(api_key="ott_live_...")
 result = client.check("merchant.com")
@@ -79,7 +79,7 @@ result = client.check("merchant.com")
 ## Check Multiple Domains
 
 ```python
-from opentrustseal import OTSClient
+from attestseal import OTSClient
 
 client = OTSClient()
 results = client.check_multiple(["site-a.com", "site-b.com", "site-c.com"])
@@ -90,11 +90,11 @@ for r in results:
 ## LangChain Integration
 
 ```bash
-pip install opentrustseal[langchain]
+pip install attestseal[langchain]
 ```
 
 ```python
-from opentrustseal.integrations.langchain import OTTVerifyTool
+from attestseal.integrations.langchain import OTTVerifyTool
 
 tools = [OTTVerifyTool()]
 agent = create_react_agent(llm, tools)
@@ -105,11 +105,11 @@ agent = create_react_agent(llm, tools)
 ## CrewAI Integration
 
 ```bash
-pip install opentrustseal[crewai]
+pip install attestseal[crewai]
 ```
 
 ```python
-from opentrustseal.integrations.crewai import OTTVerifyTool
+from attestseal.integrations.crewai import OTTVerifyTool
 
 agent = Agent(
     role="Purchasing Agent",
@@ -120,12 +120,12 @@ agent = Agent(
 ## Raw HTTP (No SDK)
 
 ```bash
-curl https://api.opentrustseal.com/v1/check/merchant.com
+curl https://api.attestseal.com/v1/check/merchant.com
 ```
 
 Works from any language. The SDK is a convenience wrapper around this endpoint.
 
 ## Links
 
-- [API Documentation](https://api.opentrustseal.com/docs)
-- [OpenTrustSeal](https://opentrustseal.com)
+- [API Documentation](https://api.attestseal.com/docs)
+- [AttestSeal](https://attestseal.com)

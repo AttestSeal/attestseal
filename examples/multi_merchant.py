@@ -1,6 +1,6 @@
 """Example 3: Compare multiple merchants.
 
-An agent comparing prices across merchants uses OTT to filter
+An agent comparing prices across merchants uses ATS to filter
 out untrustworthy options before presenting choices to the user.
 
 Usage: python3 multi_merchant.py
@@ -9,7 +9,7 @@ Usage: python3 multi_merchant.py
 import sys
 sys.path.insert(0, "../sdk/python")
 
-from opentrustseal import OTTClient
+from attestseal import OTTClient
 
 
 def find_best_merchant():

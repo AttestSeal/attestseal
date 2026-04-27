@@ -1,6 +1,6 @@
-# OpenTrustSeal Dataset -- Publication Artifacts
+# AttestSeal Dataset -- Publication Artifacts
 
-Ready-to-post drafts for the public launch of the OpenTrustSeal trust dataset. Fill placeholders (`{DOMAIN_COUNT}`, `{DATE}`, `{VERSION}`, `{HF_URL}`, `{GH_RELEASE_URL}`, `{CHECKSUM_SHA256}`) at ship time.
+Ready-to-post drafts for the public launch of the AttestSeal trust dataset. Fill placeholders (`{DOMAIN_COUNT}`, `{DATE}`, `{VERSION}`, `{HF_URL}`, `{GH_RELEASE_URL}`, `{CHECKSUM_SHA256}`) at ship time.
 
 ---
 
@@ -9,7 +9,7 @@ Ready-to-post drafts for the public launch of the OpenTrustSeal trust dataset. F
 ```yaml
 ---
 license: cc-by-4.0
-pretty_name: OpenTrustSeal Trust Dataset
+pretty_name: AttestSeal Trust Dataset
 size_categories:
 - 100K<n<1M
 task_categories:
@@ -31,11 +31,11 @@ tags:
 ---
 ```
 
-# OpenTrustSeal Trust Dataset
+# AttestSeal Trust Dataset
 
 Version `{VERSION}` -- released `{DATE}` -- `{DOMAIN_COUNT}` domains.
 
-Trust scores and signal data for `{DOMAIN_COUNT}` web domains, produced by the [OpenTrustSeal](https://opentrustseal.com) independent trust attestation API. Every row is a pre-transaction trust assessment scored across six signal categories using publicly observable data.
+Trust scores and signal data for `{DOMAIN_COUNT}` web domains, produced by the [AttestSeal](https://attestseal.com) independent trust attestation API. Every row is a pre-transaction trust assessment scored across six signal categories using publicly observable data.
 
 ## What this is
 
@@ -49,7 +49,7 @@ An independent trust attestation layer for agentic commerce. AI agents transacti
 
 ## Headline fields
 
-The full field list lives in the canonical [dataset README](https://huggingface.co/datasets/opentrustseal/trust-dataset/blob/main/README.md). Agent-operational fields called out here:
+The full field list lives in the canonical [dataset README](https://huggingface.co/datasets/attestseal/trust-dataset/blob/main/README.md). Agent-operational fields called out here:
 
 | Field | Why it matters for agents |
 |---|---|
@@ -66,18 +66,18 @@ The `confidence` and `cautionReason` fields are the reason this dataset is agent
 
 ## Fields
 
-See the full field list and types in the canonical [dataset README](https://opentrustseal.com/docs/dataset). The schema includes per-signal scores (`reputationScore`, `identityScore`, `contentScore`, `domainAgeScore`, `sslScore`, `dnsScore`), raw signal values (`ssl_valid`, `ssl_issuer`, `ssl_tlsVersion`, `dns_spf`, `dns_dmarc`, `dns_dnssec`, `content_privacyPolicy`, `content_termsOfService`, `content_contactInfo`, `reputation_malware`, `reputation_phishing`, `reputation_spamListed`), domain age (`domainAge_registeredDate`), and assessment metadata (`checkedAt`, `scoringModel`, `crawlMode`, `contentScorable`, `flags`).
+See the full field list and types in the canonical [dataset README](https://attestseal.com/docs/dataset). The schema includes per-signal scores (`reputationScore`, `identityScore`, `contentScore`, `domainAgeScore`, `sslScore`, `dnsScore`), raw signal values (`ssl_valid`, `ssl_issuer`, `ssl_tlsVersion`, `dns_spf`, `dns_dmarc`, `dns_dnssec`, `content_privacyPolicy`, `content_termsOfService`, `content_contactInfo`, `reputation_malware`, `reputation_phishing`, `reputation_spamListed`), domain age (`domainAge_registeredDate`), and assessment metadata (`checkedAt`, `scoringModel`, `crawlMode`, `contentScorable`, `flags`).
 
 ## Scoring methodology
 
-Scores are produced by the OpenTrustSeal v1.4 scoring model (`ots-v1.4-weights`). Six signal categories are weighted into a composite: Reputation 30%, Identity 25%, Content 17%, Domain Age 10%, SSL/TLS 10%, DNS 8%. A brand anchor applies a score floor of 75 for Tranco top-50K domains with 5+ years of age, clean reputation, and valid SSL. A consensus tier (new in v1.4) raises the identity ceiling from 55 to 75 for Tranco top-100 domains with 10+ years of age, clean reputation, valid SSL, and a pre-ceiling identity score at or above 30. Full spec: [SCORING-V1.4.md](https://github.com/opentrustseal/opentrustseal/blob/main/spec/SCORING-V1.4.md). Full methodology: [opentrustseal.com/docs/methodology](https://opentrustseal.com/docs/methodology).
+Scores are produced by the AttestSeal v1.4 scoring model (`attestseal-v1.4-weights`). Six signal categories are weighted into a composite: Reputation 30%, Identity 25%, Content 17%, Domain Age 10%, SSL/TLS 10%, DNS 8%. A brand anchor applies a score floor of 75 for Tranco top-50K domains with 5+ years of age, clean reputation, and valid SSL. A consensus tier (new in v1.4) raises the identity ceiling from 55 to 75 for Tranco top-100 domains with 10+ years of age, clean reputation, valid SSL, and a pre-ceiling identity score at or above 30. Full spec: [SCORING-V1.4.md](https://github.com/attestseal/attestseal/blob/main/spec/SCORING-V1.4.md). Full methodology: [attestseal.com/docs/methodology](https://attestseal.com/docs/methodology).
 
 ## How to use it
 
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("opentrustseal/trust-dataset", split="train")
+ds = load_dataset("attestseal/trust-dataset", split="train")
 
 # Allow-list: PROCEED with high confidence
 allow = ds.filter(lambda r: r["recommendation"] == "PROCEED" and r["confidence"] == "high")
@@ -102,10 +102,10 @@ def route(row):
 For per-domain lookups with a signed evidence bundle, use the live API:
 
 ```bash
-curl https://api.opentrustseal.com/v1/check/stripe.com
+curl https://api.attestseal.com/v1/check/stripe.com
 ```
 
-Python SDK (`pip install opentrustseal`) exposes `confidence` and `caution_reason` and ships with LangChain and CrewAI integrations. Free tier: 60 req/min, 10K checks/month, no API key required.
+Python SDK (`pip install attestseal`) exposes `confidence` and `caution_reason` and ships with LangChain and CrewAI integrations. Free tier: 60 req/min, 10K checks/month, no API key required.
 
 ## Limitations
 
@@ -122,30 +122,30 @@ Python SDK (`pip install opentrustseal`) exposes `confidence` and `caution_reaso
 ## Citation
 
 ```
-OpenTrustSeal Trust Dataset ({DATE}). OpenTrustSeal, Inc.
+AttestSeal Trust Dataset ({DATE}). AttestSeal, Inc.
 Version {VERSION}.
-https://opentrustseal.com
+https://attestseal.com
 ```
 
 ## Contact
 
-OpenTrustSeal, Inc.
-alu@opentrustseal.com
-https://opentrustseal.com
+AttestSeal, Inc.
+alu@attestseal.com
+https://attestseal.com
 
 ---
 
 ## Section 2: GitHub Release Description
 
-**OpenTrustSeal Trust Dataset `{VERSION}` -- `{DOMAIN_COUNT}` domains scored for agentic commerce.**
+**AttestSeal Trust Dataset `{VERSION}` -- `{DOMAIN_COUNT}` domains scored for agentic commerce.**
 
-An independent trust attestation layer for AI agents. Before an agent pays a merchant, it needs to answer one question: is this site trustworthy? This release is the batch-accessible form of that answer for `{DOMAIN_COUNT}` domains across the Tranco top-1M web, scored with the OpenTrustSeal v1.4 model.
+An independent trust attestation layer for AI agents. Before an agent pays a merchant, it needs to answer one question: is this site trustworthy? This release is the batch-accessible form of that answer for `{DOMAIN_COUNT}` domains across the Tranco top-1M web, scored with the AttestSeal v1.4 model.
 
 ### What's in the release
 
-- `opentrustseal-{VERSION}.csv` -- one row per domain, UTF-8, header row, full field schema.
-- `opentrustseal-{VERSION}.json` -- `{meta, domains[]}` structure with dataset metadata and per-domain objects.
-- `opentrustseal-{VERSION}.sha256` -- SHA-256 manifest for integrity verification. Release hash: `{CHECKSUM_SHA256}`.
+- `attestseal-{VERSION}.csv` -- one row per domain, UTF-8, header row, full field schema.
+- `attestseal-{VERSION}.json` -- `{meta, domains[]}` structure with dataset metadata and per-domain objects.
+- `attestseal-{VERSION}.sha256` -- SHA-256 manifest for integrity verification. Release hash: `{CHECKSUM_SHA256}`.
 
 ### Agent-operational fields
 
@@ -153,12 +153,12 @@ Beyond `trustScore` and `recommendation`, every row carries `confidence` (high /
 
 ### Links
 
-- Full methodology: [opentrustseal.com/docs/methodology](https://opentrustseal.com/docs/methodology)
-- v1.4 scoring spec: [SCORING-V1.4.md](https://github.com/opentrustseal/opentrustseal/blob/main/spec/SCORING-V1.4.md)
+- Full methodology: [attestseal.com/docs/methodology](https://attestseal.com/docs/methodology)
+- v1.4 scoring spec: [SCORING-V1.4.md](https://github.com/attestseal/attestseal/blob/main/spec/SCORING-V1.4.md)
 - Hugging Face mirror: {HF_URL}
-- Live API: [api.opentrustseal.com](https://api.opentrustseal.com/docs) (free tier: 60 req/min, 10K checks/month, no API key)
-- Python SDK: `pip install opentrustseal` -- LangChain and CrewAI integrations included
-- Dataset README: [dataset/README.md](https://github.com/opentrustseal/opentrustseal/blob/main/dataset/README.md)
+- Live API: [api.attestseal.com](https://api.attestseal.com/docs) (free tier: 60 req/min, 10K checks/month, no API key)
+- Python SDK: `pip install attestseal` -- LangChain and CrewAI integrations included
+- Dataset README: [dataset/README.md](https://github.com/attestseal/attestseal/blob/main/dataset/README.md)
 
 ### License
 
@@ -166,20 +166,20 @@ Beyond `trustScore` and `recommendation`, every row carries `confidence` (high /
 
 ### Merchants
 
-If your domain appears with a CAUTION or DENY recommendation, check your report and fix list at [opentrustseal.com/dashboard?domain=yourdomain.com](https://opentrustseal.com/dashboard?domain=yourdomain.com). Most CAUTION cases are `incomplete_evidence` (a content fetch was blocked, WHOIS was rate-limited) and resolve with a single rescore after a configuration fix.
+If your domain appears with a CAUTION or DENY recommendation, check your report and fix list at [attestseal.com/dashboard?domain=yourdomain.com](https://attestseal.com/dashboard?domain=yourdomain.com). Most CAUTION cases are `incomplete_evidence` (a content fetch was blocked, WHOIS was rate-limited) and resolve with a single rescore after a configuration fix.
 
 ### Verify the release
 
 ```bash
-sha256sum -c opentrustseal-{VERSION}.sha256
+sha256sum -c attestseal-{VERSION}.sha256
 ```
 
 ### Citation
 
 ```
-OpenTrustSeal Trust Dataset ({DATE}). OpenTrustSeal, Inc.
+AttestSeal Trust Dataset ({DATE}). AttestSeal, Inc.
 Version {VERSION}.
 {GH_RELEASE_URL}
 ```
 
-Contact: alu@opentrustseal.com
+Contact: alu@attestseal.com

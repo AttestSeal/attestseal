@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scoring Methodology - OpenTrustSeal</title>
-<meta name="description" content="How OpenTrustSeal computes trust scores: six signal categories, weighted scoring, brand anchors, and the evidence-first approach to AI agent commerce trust.">
+<title>Scoring Methodology - AttestSeal</title>
+<meta name="description" content="How AttestSeal computes trust scores: six signal categories, weighted scoring, brand anchors, and the evidence-first approach to AI agent commerce trust.">
 <link rel="icon" type="image/png" href="/otsseal.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,11 +58,11 @@ footer{padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem;text-al
 
 <nav class="nav" aria-label="Main">
 <div class="nav-inner">
-<a href="/"><img src="/otslogo.png" alt="OpenTrustSeal" height="28"></a>
+<a href="/"><img src="/otslogo.png" alt="AttestSeal" height="28"></a>
 <div class="nav-links">
 <a href="/">Home</a>
 <a href="/dashboard.html">Dashboard</a>
-<a href="https://api.opentrustseal.com/docs">API Docs</a>
+<a href="https://api.attestseal.com/docs">API Docs</a>
 </div>
 </div>
 </nav>
@@ -71,13 +71,13 @@ footer{padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem;text-al
 <div class="container">
 
 <h1>Scoring Methodology</h1>
-<p style="color:var(--text-light)">How OpenTrustSeal computes trust scores from publicly observable evidence.</p>
+<p style="color:var(--text-light)">How AttestSeal computes trust scores from publicly observable evidence.</p>
 
 <h2>Why independent, not a payment rail</h2>
 
-<p>OpenTrustSeal is not a payment processor. We never move money. We never route a transaction. We are an independent attestation layer that sits beside the payment rail -- agents, payment protocols, and merchants cite us before a transaction happens. This separation is intentional.</p>
+<p>AttestSeal is not a payment processor. We never move money. We never route a transaction. We are an independent attestation layer that sits beside the payment rail -- agents, payment protocols, and merchants cite us before a transaction happens. This separation is intentional.</p>
 
-<p>Payment processors have a structural conflict of interest when scoring the merchants they process for. A rail that marked a paying customer as DENY would cannibalize its own revenue. A neutral third-party trust attestation -- scored from public evidence, signed cryptographically, cited by name in the payment flow -- is the primitive that compositional agent commerce needs. That is the role OpenTrustSeal fills.</p>
+<p>Payment processors have a structural conflict of interest when scoring the merchants they process for. A rail that marked a paying customer as DENY would cannibalize its own revenue. A neutral third-party trust attestation -- scored from public evidence, signed cryptographically, cited by name in the payment flow -- is the primitive that compositional agent commerce needs. That is the role AttestSeal fills.</p>
 
 <p>The signed evidence bundle we return is designed to be cited by payment protocols (AP2, MPP, Coinbase x402) without putting us on their critical path. Any party that trusts our Ed25519 public key can verify the attestation offline, after the fact, without contacting our API at all. That is not a feature a payment rail can replicate without first divesting their merchant relationships.</p>
 
@@ -85,9 +85,9 @@ footer{padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem;text-al
 
 <p><strong>Evidence first, score second.</strong> Every trust score is a weighted summary of observable signals. The API returns the raw signal data alongside the score so agents can inspect, override, or weight signals differently for their own risk models. The score is a convenience; the evidence bundle is the product.</p>
 
-<p><strong>Versioned and reproducible.</strong> Every score includes a <code>scoringModel</code> field (e.g., <code>ots-v1.4-weights</code>). Raw signal data is stored separately from computed scores. When the scoring algorithm changes, every domain can be re-scored from stored data without re-crawling. Score changes are explicit, not silent.</p>
+<p><strong>Versioned and reproducible.</strong> Every score includes a <code>scoringModel</code> field (e.g., <code>attestseal-v1.4-weights</code>). Raw signal data is stored separately from computed scores. When the scoring algorithm changes, every domain can be re-scored from stored data without re-crawling. Score changes are explicit, not silent.</p>
 
-<p><strong>Cryptographically signed.</strong> Every response is signed with Ed25519. The public key is published in the <a href="https://opentrustseal.com/.well-known/did.json">DID document</a>. Agents and payment protocols can verify that a score was issued by OpenTrustSeal and was not tampered with after issuance.</p>
+<p><strong>Cryptographically signed.</strong> Every response is signed with Ed25519. The public key is published in the <a href="https://attestseal.com/.well-known/did.json">DID document</a>. Agents and payment protocols can verify that a score was issued by AttestSeal and was not tampered with after issuance.</p>
 
 <h2>Signal categories and weights</h2>
 
@@ -160,7 +160,7 @@ footer{padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem;text-al
 
 <p>Some sites block automated content fetching through bot protection (Cloudflare Enterprise, DataDome, PerimeterX). When the content signal cannot be collected, the scoring model drops content from the weighted sum and renormalizes the remaining five signals to sum to 100%. The response includes <code>crawlability: "blocked"</code> and the <code>CONTENT_UNSCORABLE</code> flag.</p>
 
-<p>OpenTrustSeal uses a six-tier fetch escalation ladder to maximize content collection:</p>
+<p>AttestSeal uses a six-tier fetch escalation ladder to maximize content collection:</p>
 
 <ol>
 <li>Direct HTTP with realistic browser headers</li>
@@ -190,27 +190,27 @@ footer{padding:2rem 0;border-top:1px solid var(--border);margin-top:3rem;text-al
 
 <p>Every attestation is logged in a per-domain hash chain (tamper-evident transparency log). Auditors can verify the chain at <code>/v1/log/{domain}/verify</code>. The scoring model version, raw signal data, and computed score are all available via the API for independent verification.</p>
 
-<p>The Ed25519 signing key's public component is published in the <a href="https://opentrustseal.com/.well-known/did.json">DID document</a>. Key rotation follows a documented 12-month schedule with a 2-week overlap period.</p>
+<p>The Ed25519 signing key's public component is published in the <a href="https://attestseal.com/.well-known/did.json">DID document</a>. Key rotation follows a documented 12-month schedule with a 2-week overlap period.</p>
 
 <h2>Open methodology and open dataset</h2>
 
-<p>The scoring code, signal collectors, and test suite are public at <a href="https://github.com/OpenTrustSeal/opentrustseal">github.com/OpenTrustSeal/opentrustseal</a>. The scoring specification for the current model version lives at <a href="https://github.com/OpenTrustSeal/opentrustseal/blob/main/spec/SCORING-V1.4.md"><code>spec/SCORING-V1.4.md</code></a> in the repository.</p>
+<p>The scoring code, signal collectors, and test suite are public at <a href="https://github.com/AttestSeal/attestseal">github.com/AttestSeal/attestseal</a>. The scoring specification for the current model version lives at <a href="https://github.com/AttestSeal/attestseal/blob/main/spec/SCORING-V1.4.md"><code>spec/SCORING-V1.4.md</code></a> in the repository.</p>
 
 <p>The full trust dataset for the Tranco top-1M is published under <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>. Anyone can download it, cite it, build on top of it. No paywall, no registration. The dataset is the reference; the API is the distribution layer.</p>
 
-<p>Security vulnerability reports go to <a href="mailto:alu@opentrustseal.com">alu@opentrustseal.com</a>. Our disclosure policy is documented in <a href="https://github.com/OpenTrustSeal/opentrustseal/blob/main/SECURITY.md"><code>SECURITY.md</code></a>. Signing key compromises, signature-verification bypasses, and transparency-log hash-chain tampering are the highest-severity issues we triage.</p>
+<p>Security vulnerability reports go to <a href="mailto:alu@attestseal.com">alu@attestseal.com</a>. Our disclosure policy is documented in <a href="https://github.com/AttestSeal/attestseal/blob/main/SECURITY.md"><code>SECURITY.md</code></a>. Signing key compromises, signature-verification bypasses, and transparency-log hash-chain tampering are the highest-severity issues we triage.</p>
 
 </div>
 </main>
 
 <footer>
 <div class="container">
-<p>OpenTrustSeal, Inc. -- Independent trust attestation for AI agent commerce</p>
+<p>AttestSeal, Inc. -- Independent trust attestation for AI agent commerce</p>
 <p style="margin-top:0.4rem">
 <a href="/">Home</a> &middot;
-<a href="https://api.opentrustseal.com/docs">API Docs</a> &middot;
-<a href="https://opentrustseal.github.io/status/">Status</a> &middot;
-<a href="mailto:alu@opentrustseal.com">Contact</a>
+<a href="https://api.attestseal.com/docs">API Docs</a> &middot;
+<a href="https://attestseal.github.io/status/">Status</a> &middot;
+<a href="mailto:alu@attestseal.com">Contact</a>
 </p>
 </div>
 </footer>

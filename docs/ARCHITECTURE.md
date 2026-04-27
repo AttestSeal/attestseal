@@ -1,4 +1,4 @@
-# OpenTrustSeal System Architecture
+# AttestSeal System Architecture
 
 **Version:** 0.2.0-draft
 **Date:** 2026-04-10
@@ -502,7 +502,7 @@ At this scale, you are a trust infrastructure company. Architecture shifts to:
 All services are containerized (Docker) and orchestrated with Kubernetes.
 
 ```
-Namespace: ott-production
+Namespace: ats-production
   Deployments:
     api-gateway        (replicas: 1-20, HPA on CPU/request count)
     verify-service     (replicas: 1-15, HPA on CPU/request count)

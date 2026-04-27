@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# OpenTrustSeal VPS Setup Script
+# AttestSeal VPS Setup Script
 # Target: Ubuntu 24.04 LTS, 2GB RAM minimum
 # Run as root: bash setup-vps.sh
 #
 # Prerequisites:
-#   - DNS: api.opentrustseal.com -> VPS IP
+#   - DNS: api.attestseal.com -> VPS IP
 #   - Fresh Ubuntu 24.04 install
 
 set -euo pipefail
 
-DOMAIN="api.opentrustseal.com"
+DOMAIN="api.attestseal.com"
 APP_USER="ott"
-APP_DIR="/opt/opentrustseal"
+APP_DIR="/opt/attestseal"
 VENV_DIR="$APP_DIR/venv"
 
-echo "=== OpenTrustSeal VPS Setup ==="
+echo "=== AttestSeal VPS Setup ==="
 
 # 1. System updates
 echo "[1/8] Updating system..."
@@ -35,9 +35,9 @@ echo "[4/8] Setting up application..."
 mkdir -p "$APP_DIR"/{data,keys,logs}
 chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 
-# Copy server code (assumes you've rsync'd it to /tmp/ots-server/)
-if [ -d /tmp/ots-server ]; then
-    cp -r /tmp/ots-server/* "$APP_DIR/"
+# Copy server code (assumes you've rsync'd it to /tmp/ats-server/)
+if [ -d /tmp/ats-server ]; then
+    cp -r /tmp/ats-server/* "$APP_DIR/"
     chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 fi
 
@@ -50,7 +50,7 @@ sudo -u "$APP_USER" "$VENV_DIR/bin/pip" install -q \
 
 # 6. Configure nginx
 echo "[6/8] Configuring nginx..."
-cat > /etc/nginx/sites-available/opentrustseal <<NGINX
+cat > /etc/nginx/sites-available/attestseal <<NGINX
 server {
     listen 80;
     server_name $DOMAIN;
@@ -67,15 +67,15 @@ server {
 }
 NGINX
 
-ln -sf /etc/nginx/sites-available/opentrustseal /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/attestseal /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 
 # 7. Create systemd service
 echo "[7/8] Creating systemd service..."
-cat > /etc/systemd/system/opentrustseal.service <<SERVICE
+cat > /etc/systemd/system/attestseal.service <<SERVICE
 [Unit]
-Description=OpenTrustSeal API Server
+Description=AttestSeal API Server
 After=network.target
 
 [Service]
@@ -83,8 +83,8 @@ Type=simple
 User=$APP_USER
 Group=$APP_USER
 WorkingDirectory=$APP_DIR
-Environment=OTS_KEY_DIR=$APP_DIR/keys
-Environment=OTS_DB_PATH=$APP_DIR/data/ots.db
+Environment=ATS_KEY_DIR=$APP_DIR/keys
+Environment=ATS_DB_PATH=$APP_DIR/data/ots.db
 ExecStart=$VENV_DIR/bin/uvicorn app.main:app --host 127.0.0.1 --port 8900 --workers 2
 Restart=always
 RestartSec=5
@@ -101,12 +101,12 @@ WantedBy=multi-user.target
 SERVICE
 
 systemctl daemon-reload
-systemctl enable opentrustseal
-systemctl start opentrustseal
+systemctl enable attestseal
+systemctl start attestseal
 
 # 8. SSL certificate
 echo "[8/8] Setting up SSL..."
-certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --email admin@opentrustseal.com --redirect || {
+certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --email admin@attestseal.com --redirect || {
     echo "Certbot failed. Make sure DNS is pointed to this server."
     echo "Run manually: certbot --nginx -d $DOMAIN"
 }
@@ -124,5 +124,5 @@ echo "Docs:   https://$DOMAIN/docs"
 echo "Health: https://$DOMAIN/health"
 echo ""
 echo "To deploy updates:"
-echo "  rsync -avz server/ root@VPS_IP:/tmp/ots-server/"
-echo "  ssh root@VPS_IP 'cp -r /tmp/ots-server/* /opt/opentrustseal/ && systemctl restart opentrustseal'"
+echo "  rsync -avz server/ root@VPS_IP:/tmp/ats-server/"
+echo "  ssh root@VPS_IP 'cp -r /tmp/ats-server/* /opt/attestseal/ && systemctl restart attestseal'"

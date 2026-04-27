@@ -10,7 +10,7 @@ The code ships dark by default. Follow these steps to turn on commercial scraper
 
 ## Step 1 -- sign up with Bright Data
 
-1. Sign up at https://brightdata.com/ (corporate account, OpenTrustSeal, Inc.).
+1. Sign up at https://brightdata.com/ (corporate account, AttestSeal, Inc.).
 2. Set a **hard monthly spend cap** in the dashboard before enabling anything. Recommended $200/mo for the 100K seed, $500/mo for the full 1M. Bright Data's billing dashboard supports a hard ceiling; use it.
 3. Create a zone of type **Web Unlocker**. Name it something descriptive like `ots_web_unlocker`.
 4. In the zone settings, note:
@@ -23,24 +23,24 @@ The code ships dark by default. Follow these steps to turn on commercial scraper
 From your dev Mac:
 
 ```bash
-scp opentrusttoken/deploy/scraper.env.template root@206.189.65.177:/tmp/scraper.env
-ssh root@206.189.65.177 "sudoedit /etc/opentrustseal/scraper.env"
+scp attestseal/deploy/scraper.env.template root@206.189.65.177:/tmp/scraper.env
+ssh root@206.189.65.177 "sudoedit /etc/attestseal/scraper.env"
 # Paste the template, fill in the three credential fields, leave SCRAPER_ENABLED=false.
-ssh root@206.189.65.177 "chown root:ott /etc/opentrustseal/scraper.env && chmod 640 /etc/opentrustseal/scraper.env"
+ssh root@206.189.65.177 "chown root:ott /etc/attestseal/scraper.env && chmod 640 /etc/attestseal/scraper.env"
 ```
 
 Verify permissions:
 ```bash
-ssh root@206.189.65.177 "ls -la /etc/opentrustseal/scraper.env"
+ssh root@206.189.65.177 "ls -la /etc/attestseal/scraper.env"
 # Expected: -rw-r----- 1 root ott ...
 ```
 
 ## Step 3 -- restart the API + confirm scraper sees the config (still dark)
 
 ```bash
-ssh root@206.189.65.177 "systemctl restart opentrustseal"
+ssh root@206.189.65.177 "systemctl restart attestseal"
 sleep 3
-curl -s https://api.opentrustseal.com/stats | python3 -c "import json,sys;d=json.load(sys.stdin);print('scraper_enabled:', d['fetch']['scraper_enabled']); print('scraper_provider:', d['fetch']['scraper_provider'])"
+curl -s https://api.attestseal.com/stats | python3 -c "import json,sys;d=json.load(sys.stdin);print('scraper_enabled:', d['fetch']['scraper_enabled']); print('scraper_provider:', d['fetch']['scraper_provider'])"
 ```
 
 Expected: `scraper_enabled: False`, `scraper_provider: None`. That's correct -- `SCRAPER_ENABLED=false` means the flag is off even though credentials are present. We're verifying the config is parseable before flipping the switch.
@@ -54,9 +54,9 @@ Shortcut: skip to Step 5. The 3-strike gate already prevents runaway cost; shado
 ## Step 5 -- flip to live
 
 ```bash
-ssh root@206.189.65.177 'sed -i "s/SCRAPER_ENABLED=false/SCRAPER_ENABLED=true/" /etc/opentrustseal/scraper.env && systemctl restart opentrustseal'
+ssh root@206.189.65.177 'sed -i "s/SCRAPER_ENABLED=false/SCRAPER_ENABLED=true/" /etc/attestseal/scraper.env && systemctl restart attestseal'
 sleep 3
-curl -s https://api.opentrustseal.com/stats | python3 -c "import json,sys;d=json.load(sys.stdin);print('scraper_enabled:', d['fetch']['scraper_enabled'])"
+curl -s https://api.attestseal.com/stats | python3 -c "import json,sys;d=json.load(sys.stdin);print('scraper_enabled:', d['fetch']['scraper_enabled'])"
 # Expected: scraper_enabled: True
 ```
 
@@ -65,7 +65,7 @@ curl -s https://api.opentrustseal.com/stats | python3 -c "import json,sys;d=json
 If you want tier 6 to fire on day one for domains you already know are stuck (instead of waiting 3 daily cycles for them to accumulate strikes), preload them:
 
 ```bash
-ssh root@206.189.65.177 "cd /opt/opentrusttoken && sudo -u ott /opt/opentrusttoken/venv/bin/python3 -c 'from app import tier6_gate; n = tier6_gate.preload_bootstrap_strikes([\"kohls.com\"], strikes=3); print(f\"preloaded {n}\")'"
+ssh root@206.189.65.177 "cd /opt/attestseal && sudo -u ott /opt/attestseal/venv/bin/python3 -c 'from app import tier6_gate; n = tier6_gate.preload_bootstrap_strikes([\"kohls.com\"], strikes=3); print(f\"preloaded {n}\")'"
 ```
 
 Expand the list with any other domains you want to force through tier 6 on the next fetch. Typical candidates are the ones still showing `crawlability: blocked` after tiers 1-5 stabilize.
@@ -75,7 +75,7 @@ Expand the list with any other domains you want to force through tier 6 on the n
 ### Real-time stats
 
 ```bash
-curl -s https://api.opentrustseal.com/stats | python3 -c "
+curl -s https://api.attestseal.com/stats | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 f = d['fetch']
@@ -96,7 +96,7 @@ print(f'  gate_strikes:    {f[\"scraper_gate_strikes\"]}')
 ### Per-domain audit trail
 
 ```bash
-ssh root@206.189.65.177 "sqlite3 /opt/opentrusttoken/data/ott.db 'SELECT domain, strike_count, tier6_call_count, last_tier6_status, last_tier6_called_at FROM tier6_gate ORDER BY tier6_call_count DESC LIMIT 20;'"
+ssh root@206.189.65.177 "sqlite3 /opt/attestseal/data/ott.db 'SELECT domain, strike_count, tier6_call_count, last_tier6_status, last_tier6_called_at FROM tier6_gate ORDER BY tier6_call_count DESC LIMIT 20;'"
 ```
 
 Shows which domains have cost you tier 6 calls, how many times each, and whether they returned success (`200`) or error (`403`/other).
@@ -110,7 +110,7 @@ Bright Data's dashboard is the source of truth for spend. Check weekly. If you s
 If something breaks or spend spirals:
 
 ```bash
-ssh root@206.189.65.177 'sed -i "s/SCRAPER_ENABLED=true/SCRAPER_ENABLED=false/" /etc/opentrustseal/scraper.env && systemctl restart opentrustseal'
+ssh root@206.189.65.177 'sed -i "s/SCRAPER_ENABLED=true/SCRAPER_ENABLED=false/" /etc/attestseal/scraper.env && systemctl restart attestseal'
 ```
 
 Tier 6 turns off. Tiers 1-5 continue as normal. The strike counter continues accumulating but fires nothing.

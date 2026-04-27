@@ -5,7 +5,7 @@ before making purchases. The agent decides on its own when to
 call the trust verification tool.
 
 Requirements:
-    pip install langchain-openai opentrustseal
+    pip install langchain-openai attestseal
 
 Set your OpenAI API key:
     export OPENAI_API_KEY=sk-...
@@ -27,7 +27,7 @@ if not os.environ.get("OPENAI_API_KEY"):
 else:
     SIMULATION = False
 
-from opentrustseal import check
+from attestseal import check
 
 
 def simulate_agent():
@@ -67,7 +67,7 @@ def simulate_agent():
 
         result = check(scenario["domain"])
 
-        print(f"[OTT Tool Response]")
+        print(f"[ATS Tool Response]")
         print(f"  {result.domain}: Score {result.trust_score}/100 ({result.recommendation})")
         print(f"  {result.reasoning}")
         if result.flags:
@@ -114,12 +114,12 @@ def simulate_agent():
 
 
 def run_real_agent():
-    """Run an actual LangChain agent with the OTT tool."""
+    """Run an actual LangChain agent with the ATS tool."""
     try:
         from langchain_openai import ChatOpenAI
         from langchain.agents import create_react_agent, AgentExecutor
         from langchain_core.prompts import PromptTemplate
-        from opentrustseal.integrations.langchain import OTTVerifyTool
+        from attestseal.integrations.langchain import OTTVerifyTool
     except ImportError as e:
         print(f"Missing dependency: {e}")
         print("Install with: pip install langchain-openai langchain")

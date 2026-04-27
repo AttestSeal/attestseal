@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenTrustSeal - How It Works (scoring v1.4)</title>
+<title>AttestSeal - How It Works (scoring v1.4)</title>
 <link rel="icon" type="image/png" href="/otsseal.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -112,7 +112,7 @@ footer img{height:36px;margin:0 auto 0.5rem;display:block}
 
 <nav class="nav">
 <div class="nav-inner">
-<a href="/" class="nav-brand"><img src="/otslogo.png" alt="OpenTrustSeal"></a>
+<a href="/" class="nav-brand"><img src="/otslogo.png" alt="AttestSeal"></a>
 <div class="nav-links">
 <a href="#architecture">Architecture</a>
 <a href="#scoring">Scoring</a>
@@ -127,7 +127,7 @@ footer img{height:36px;margin:0 auto 0.5rem;display:block}
 
 <header class="hero">
 <div class="container">
-<h1>OpenTrustSeal: Structural Overview</h1>
+<h1>AttestSeal: Structural Overview</h1>
 <p>The independent trust attestation layer for AI agent commerce. How it works, how scoring is built, how the fetch escalation ladder reaches sites that block our datacenter IPs, and where the compositional brand anchor, KYC infrastructure, and longitudinal trust graph fit into the architecture.</p>
 </div>
 </header>
@@ -138,7 +138,7 @@ footer img{height:36px;margin:0 auto 0.5rem;display:block}
 <p class="label">The Problem</p>
 <h2>AI agents can pay. They have no way to know who to trust.</h2>
 <p>Stripe's Machine Payments Protocol, Coinbase x402, Visa's AP2 framework, and Skyfire KYAPay are building payment rails for AI agents. These handle "how agents pay." Nobody has standardized the pre-transaction question: "should this agent pay this specific site?"</p>
-<p style="margin-top:0.75rem">OpenTrustSeal answers that question. One API call returns a cryptographically signed evidence bundle with a trust score, a brand tier classification, a crawlability flag, and a PROCEED / CAUTION / DENY recommendation. The evidence bundle is the product. Payment protocols can cite our verdicts without putting us on their critical path, because the Ed25519 signature lets anyone verify a token without calling our API.</p>
+<p style="margin-top:0.75rem">AttestSeal answers that question. One API call returns a cryptographically signed evidence bundle with a trust score, a brand tier classification, a crawlability flag, and a PROCEED / CAUTION / DENY recommendation. The evidence bundle is the product. Payment protocols can cite our verdicts without putting us on their critical path, because the Ed25519 signature lets anyone verify a token without calling our API.</p>
 
 <div class="card-grid" style="margin-top:1.5rem">
 <div class="card">
@@ -222,7 +222,7 @@ scored_results <span class="c">-- domain, score, recommendation, model_version, 
 <div class="container">
 <p class="label">Scoring Model</p>
 <h2>How trust scores are computed</h2>
-<p style="color:var(--text-light);margin-bottom:1rem">The score is a weighted average of six signal categories, with two anchors layered on top: <strong>content re-weighting</strong> when we cannot reach the homepage (content's 17% is dropped and the remaining five signals renormalize to sum to 100%), and the <strong>well-known brand anchor</strong> for unambiguously established sites. The model is versioned (current: <code style="font-family:var(--mono);font-size:0.85rem">ots-v1.4-weights</code>) and can be updated without re-crawling because raw signals are stored separately from scored results.</p>
+<p style="color:var(--text-light);margin-bottom:1rem">The score is a weighted average of six signal categories, with two anchors layered on top: <strong>content re-weighting</strong> when we cannot reach the homepage (content's 17% is dropped and the remaining five signals renormalize to sum to 100%), and the <strong>well-known brand anchor</strong> for unambiguously established sites. The model is versioned (current: <code style="font-family:var(--mono);font-size:0.85rem">attestseal-v1.4-weights</code>) and can be updated without re-crawling because raw signals are stored separately from scored results.</p>
 
 <div class="table-wrap">
 <table>
@@ -612,22 +612,22 @@ scored_results <span class="c">-- domain, score, recommendation, model_version, 
 <section>
 <div class="container">
 <p class="label">Market Position</p>
-<h2>Where OTS sits in the agent commerce stack</h2>
+<h2>Where ATS sits in the agent commerce stack</h2>
 
 <div class="table-wrap" style="margin-top:1rem">
 <table>
-<thead><tr><th>Player</th><th>What they do</th><th>Relationship to OTS</th></tr></thead>
+<thead><tr><th>Player</th><th>What they do</th><th>Relationship to ATS</th></tr></thead>
 <tbody>
-<tr><td><strong>Stripe MPP</strong></td><td>Agent payment protocol (stablecoin + fiat)</td><td>Complementary: OTS is the pre-transaction check</td></tr>
-<tr><td><strong>Coinbase x402</strong></td><td>HTTP-native crypto payments</td><td>Complementary: OTS verifies before x402 pays</td></tr>
-<tr><td><strong>Skyfire KYAPay</strong></td><td>Agent identity + payments (proprietary)</td><td>Competitor on identity; OTS is open and rail-agnostic</td></tr>
+<tr><td><strong>Stripe MPP</strong></td><td>Agent payment protocol (stablecoin + fiat)</td><td>Complementary: ATS is the pre-transaction check</td></tr>
+<tr><td><strong>Coinbase x402</strong></td><td>HTTP-native crypto payments</td><td>Complementary: ATS verifies before x402 pays</td></tr>
+<tr><td><strong>Skyfire KYAPay</strong></td><td>Agent identity + payments (proprietary)</td><td>Competitor on identity; ATS is open and rail-agnostic</td></tr>
 <tr><td><strong>Visa Trusted Agent</strong></td><td>Agent credential framework</td><td>Different focus: they verify agents, we verify merchants</td></tr>
 <tr><td><strong>Google Safe Browsing</strong></td><td>Binary safe/unsafe flag</td><td>Data source: we consume their API as one of many signals</td></tr>
 </tbody>
 </table>
 </div>
 
-<p style="color:var(--text-light);font-size:0.9rem;margin-top:1rem"><strong>The neutrality argument:</strong> Payment rails cannot credibly be the trust authority for the merchants they process payments for. OTS is independent: we don't process payments, we don't take a transaction fee, we verify trust. Same structural reason SSL certificates come from independent CAs, not from browser vendors.</p>
+<p style="color:var(--text-light);font-size:0.9rem;margin-top:1rem"><strong>The neutrality argument:</strong> Payment rails cannot credibly be the trust authority for the merchants they process payments for. ATS is independent: we don't process payments, we don't take a transaction fee, we verify trust. Same structural reason SSL certificates come from independent CAs, not from browser vendors.</p>
 </div>
 </section>
 
@@ -647,13 +647,13 @@ scored_results <span class="c">-- domain, score, recommendation, model_version, 
 <tr><td><strong>Reputation pipeline</strong></td><td style="color:var(--green)">Live</td><td>Tranco + Safe Browsing + Spamhaus + SURBL + URLhaus</td></tr>
 <tr><td><strong>International scoring</strong></td><td style="color:var(--green)">Live</td><td>12+ languages, GDPR WHOIS awareness, ccTLD bonuses, jurisdiction detection</td></tr>
 <tr><td><strong>Category detection</strong></td><td style="color:var(--green)">Live</td><td>Auto-detect infrastructure vs consumer, category-adjusted scoring</td></tr>
-<tr><td><strong>Landing page + free checker</strong></td><td style="color:var(--green)">Live</td><td>Public domain checker at opentrustseal.com</td></tr>
+<tr><td><strong>Landing page + free checker</strong></td><td style="color:var(--green)">Live</td><td>Public domain checker at attestseal.com</td></tr>
 <tr><td><strong>Domain registration flow</strong></td><td style="color:var(--green)">Live</td><td>Structured data collection, per-field verification scoring (max +30), DNS/HTTP domain proof, public/private separation, cross-referencing against WHOIS and SSL cert org</td></tr>
 <tr><td><strong>Site owner dashboard</strong></td><td style="color:var(--green)">Live</td><td>Score hero, signal breakdown bars, jurisdiction profile, grouped checklist, registration status with per-field verification, score history chart with PROCEED threshold line</td></tr>
 <tr><td><strong>Python + TypeScript SDKs</strong></td><td style="color:var(--green)">Built</td><td>sync/async clients, LangChain and CrewAI tool wrappers. Not yet published to PyPI / npm.</td></tr>
 <tr><td><strong>Fetch tier 1 (direct httpx)</strong></td><td style="color:var(--green)">Live</td><td>Realistic browser headers, Brotli decompression, Chrome and Safari user-agent rotation, www-fallback for sites with dead apex</td></tr>
 <tr><td><strong>Fetch tier 1.5 (protocol probe)</strong></td><td style="color:var(--green)">Live</td><td>Direct httpx to /.well-known/security.txt. Many captcha-walled sites serve a clean 404 error shell containing the footer template, which has the legal links we score on. Often rescues content where tier 1 got a captcha.</td></tr>
-<tr><td><strong>Fetch tier 2 (headless Chromium)</strong></td><td style="color:var(--green)">Live</td><td>Dedicated crawler droplet (ots-crawler-1), FastAPI fetch service on private VPC, playwright-stealth, pool of warm contexts, shared-secret auth, circuit breaker</td></tr>
+<tr><td><strong>Fetch tier 2 (headless Chromium)</strong></td><td style="color:var(--green)">Live</td><td>Dedicated crawler droplet (ats-crawler-1), FastAPI fetch service on private VPC, playwright-stealth, pool of warm contexts, shared-secret auth, circuit breaker</td></tr>
 <tr><td><strong>Fetch tier 3 (residential proxy)</strong></td><td style="color:var(--green)">Live</td><td>Decodo rotating residential IPs, Playwright through proxy, ephemeral contexts per request, separate circuit breaker, counters at /stats.fetch</td></tr>
 <tr><td><strong>Fetch tier 4 (residential fleet)</strong></td><td style="color:var(--green)">Live</td><td>Fleet of residential-ISP endpoints (Mac Air + Windows gaming PC, Chrome for Testing 138 via executable_path) over Tailscale. Round-robin with per-endpoint circuit breakers. Defeats Cloudflare Enterprise Bot Management on the CF-blocked merchant set (chewy, crateandbarrel, macys, petco).</td></tr>
 <tr><td><strong>Fetch tier 5 (Wayback Machine)</strong></td><td style="color:var(--green)">Live</td><td>Internet Archive CDX lookup + id_ mode snapshot retrieval for sites that block live fetching. Tagged wayback-&lt;timestamp&gt; in raw signals for auditability.</td></tr>
@@ -668,7 +668,7 @@ scored_results <span class="c">-- domain, score, recommendation, model_version, 
 <tr><td><strong>KYC infrastructure</strong></td><td style="color:var(--text-dim)">Planned</td><td>Enhanced, KYC-Verified, Enterprise tiers with partner integrations (Jumio / Onfido / Persona / OpenCorporates / Plaid)</td></tr>
 <tr><td><strong>Infrastructure scoring v2</strong></td><td style="color:var(--text-dim)">Planned</td><td>Parent company linkage (cloudfront.net to Amazon), x402/MPP endpoint detection, API-specific checklists</td></tr>
 <tr><td><strong>Historical WHOIS integration</strong></td><td style="color:var(--text-dim)">Planned</td><td>Enables true registrant-change detection without the false positives of the updated_date heuristic</td></tr>
-<tr><td><strong>Agent SDK reference integration</strong></td><td style="color:var(--text-dim)">Priority next</td><td>One widely-used agent framework (LangChain, CrewAI, OpenAI Swarm, Anthropic tool-use) calls OTS before payments in its reference implementation. Single most impactful GTM move.</td></tr>
+<tr><td><strong>Agent SDK reference integration</strong></td><td style="color:var(--text-dim)">Priority next</td><td>One widely-used agent framework (LangChain, CrewAI, OpenAI Swarm, Anthropic tool-use) calls ATS before payments in its reference implementation. Single most impactful GTM move.</td></tr>
 <tr><td><strong>Regional KYC partners</strong></td><td style="color:var(--text-dim)">Planned</td><td>Companies House (UK), VIES (EU VAT), regional ID verification providers</td></tr>
 <tr><td><strong>PostgreSQL migration</strong></td><td style="color:var(--text-dim)">At scale</td><td>Move from SQLite when concurrent write pressure demands it</td></tr>
 <tr><td><strong>Multi-region</strong></td><td style="color:var(--text-dim)">Future</td><td>Geographic distribution for sub-200ms global response times</td></tr>
@@ -697,7 +697,7 @@ scored_results <span class="c">-- domain, score, recommendation, model_version, 
 
 <div class="card">
 <h4>DID (Decentralized Identifier)</h4>
-<p style="font-size:0.875rem;color:var(--text-light)">Our digital identity is <code style="font-family:var(--mono);font-size:0.85rem">did:web:opentrustseal.com</code>. This is a W3C standard for creating digital identities that don't depend on any single authority. Our DID document (at /.well-known/did.json) contains our public signing key. Any agent worldwide can look up our DID, find our public key, and verify our tokens without any prior relationship with us.</p>
+<p style="font-size:0.875rem;color:var(--text-light)">Our digital identity is <code style="font-family:var(--mono);font-size:0.85rem">did:web:attestseal.com</code>. This is a W3C standard for creating digital identities that don't depend on any single authority. Our DID document (at /.well-known/did.json) contains our public signing key. Any agent worldwide can look up our DID, find our public key, and verify our tokens without any prior relationship with us.</p>
 </div>
 
 <div class="card">
@@ -716,9 +716,9 @@ scored_results <span class="c">-- domain, score, recommendation, model_version, 
 
 <footer>
 <div class="container">
-<img src="/otslogo.png" alt="OpenTrustSeal">
-<p>OpenTrustSeal, Inc. -- Independent trust attestation for AI agent commerce</p>
-<p style="margin-top:0.25rem"><a href="https://opentrustseal.com" style="color:var(--text-dim)">opentrustseal.com</a> . <a href="https://opentrustseal.github.io/status/" style="color:var(--text-dim)">Status</a> . <a href="https://api.opentrustseal.com/docs" style="color:var(--text-dim)">API Docs</a></p>
+<img src="/otslogo.png" alt="AttestSeal">
+<p>AttestSeal, Inc. -- Independent trust attestation for AI agent commerce</p>
+<p style="margin-top:0.25rem"><a href="https://attestseal.com" style="color:var(--text-dim)">attestseal.com</a> . <a href="https://attestseal.github.io/status/" style="color:var(--text-dim)">Status</a> . <a href="https://api.attestseal.com/docs" style="color:var(--text-dim)">API Docs</a></p>
 </div>
 </footer>
 

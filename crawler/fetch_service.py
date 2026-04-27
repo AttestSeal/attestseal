@@ -1,4 +1,4 @@
-"""OpenTrustSeal crawler fetch service.
+"""AttestSeal crawler fetch service.
 
 Single-purpose Playwright wrapper. Listens on a private VPC address only,
 authenticated via shared secret, returns fetched homepage bodies + metadata
@@ -254,7 +254,7 @@ async def lifespan(app: FastAPI):
     await pool.stop()
 
 
-app = FastAPI(title="OTT Crawler Fetch Service", lifespan=lifespan)
+app = FastAPI(title="ATS Crawler Fetch Service", lifespan=lifespan)
 
 
 def _check_secret(x_crawler_secret: Optional[str]) -> None:

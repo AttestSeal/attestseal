@@ -1,12 +1,12 @@
-"""LangChain / LangGraph tool integration for OpenTrustSeal.
+"""LangChain / LangGraph tool integration for AttestSeal.
 
 Usage:
-    from opentrustseal.integrations.langchain import OpenTrustSealTool
+    from attestseal.integrations.langchain import AttestSealTool
 
-    tools = [OpenTrustSealTool()]
+    tools = [AttestSealTool()]
     agent = create_react_agent(llm, tools)
 
-    # The agent can now call: OpenTrustSealTool.run("merchant.com")
+    # The agent can now call: AttestSealTool.run("merchant.com")
     # Returns: "merchant.com: Score 81/100 (PROCEED). Established domain, valid SSL..."
 """
 
@@ -15,14 +15,14 @@ try:
 except ImportError:
     raise ImportError(
         "langchain-core is required for LangChain integration. "
-        "Install with: pip install opentrustseal[langchain]"
+        "Install with: pip install attestseal[langchain]"
     )
 
 from typing import Optional
 from ..client import OTSClient
 
 
-class OpenTrustSealTool(BaseTool):
+class AttestSealTool(BaseTool):
     """Tool that checks a domain's trust score before an agent transacts.
 
     Returns a human-readable summary that an LLM agent can use to
@@ -38,7 +38,7 @@ class OpenTrustSealTool(BaseTool):
     )
 
     api_key: Optional[str] = None
-    base_url: str = "https://api.opentrustseal.com"
+    base_url: str = "https://api.attestseal.com"
 
     def _run(self, domain: str) -> str:
         client = OTSClient(api_key=self.api_key, base_url=self.base_url)

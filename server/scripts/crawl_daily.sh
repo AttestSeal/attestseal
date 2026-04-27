@@ -2,9 +2,9 @@
 # Daily re-crawl wrapper. Called by cron. Activates the venv, runs the
 # Python re-crawler, writes a dated log, prunes old logs.
 #
-# Expects to live at /opt/opentrustseal/scripts/crawl_daily.sh on the VPS.
+# Expects to live at /opt/attestseal/scripts/crawl_daily.sh on the VPS.
 # Cron entry (run as the ott user):
-#   0 3 * * * /opt/opentrustseal/scripts/crawl_daily.sh >> /opt/opentrustseal/logs/crawl-cron.log 2>&1
+#   0 3 * * * /opt/attestseal/scripts/crawl_daily.sh >> /opt/attestseal/logs/crawl-cron.log 2>&1
 #
 # The daily Python script writes the heartbeat JSON. This wrapper's exit
 # code mirrors the Python script so the cron line's output signals whether
@@ -12,7 +12,7 @@
 
 set -u
 
-APP_DIR="/opt/opentrustseal"
+APP_DIR="/opt/attestseal"
 VENV="${APP_DIR}/venv"
 LOG_DIR="${APP_DIR}/logs"
 DATA_DIR="${APP_DIR}/data"
@@ -34,18 +34,18 @@ fi
 # shellcheck disable=SC1091
 . "${VENV}/bin/activate"
 
-export OTS_DATA_DIR="${DATA_DIR}"
-# Critical: app reads OTS_DB_PATH and defaults to ./data/ots.db if missing.
+export ATS_DATA_DIR="${DATA_DIR}"
+# Critical: app reads ATS_DB_PATH and defaults to ./data/ots.db if missing.
 # Without this export the cron silently runs against a blank ots.db, logs
 # "registry empty", and skips the real production DB at ott.db. Make the
 # target explicit instead of relying on cwd + default.
-export OTS_DB_PATH="${DATA_DIR}/ott.db"
-export OTS_KEY_DIR="${APP_DIR}/keys"
+export ATS_DB_PATH="${DATA_DIR}/ott.db"
+export ATS_KEY_DIR="${APP_DIR}/keys"
 # Enable the same fetch-tier flags the live service runs with so daily
 # re-crawls escalate through probe + Wayback on blocked sites, matching
 # what's live in production.
-export OTS_ENABLE_WAYBACK_TIER=1
-export OTS_ENABLE_PROBE_TIER=1
+export ATS_ENABLE_WAYBACK_TIER=1
+export ATS_ENABLE_PROBE_TIER=1
 
 cd "${APP_DIR}"
 

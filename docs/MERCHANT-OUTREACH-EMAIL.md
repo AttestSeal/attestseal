@@ -1,10 +1,10 @@
 # Merchant Outreach -- CAUTION-Scored Sites
 
-Email templates for merchants whose domain scored CAUTION (40 to 74) in the OpenTrustSeal dataset. Goal is to get the merchant to claim their dashboard, fix surfaced issues, and re-check. Fixes move them to PROCEED and open the site to AI-agent transactions.
+Email templates for merchants whose domain scored CAUTION (40 to 74) in the AttestSeal dataset. Goal is to get the merchant to claim their dashboard, fix surfaced issues, and re-check. Fixes move them to PROCEED and open the site to AI-agent transactions.
 
-Sender: alu@opentrustseal.com
-Reply-to: alu@opentrustseal.com
-From name: Allen Lu, OpenTrustSeal
+Sender: alu@attestseal.com
+Reply-to: alu@attestseal.com
+From name: Allen Lu, AttestSeal
 
 ## Placeholders
 
@@ -15,8 +15,8 @@ From name: Allen Lu, OpenTrustSeal
 - `{confidence}` -- "high", "medium", or "low"
 - `{caution_reason}` -- "incomplete_evidence", "weak_signals", "new_domain", or "infrastructure"
 - `{top_issues}` -- bullet list of the three highest-impact checklist items, one per line
-- `{dashboard_url}` -- https://opentrustseal.com/dashboard.html?domain={domain}
-- `{check_url}` -- https://api.opentrustseal.com/v1/check/{domain}
+- `{dashboard_url}` -- https://attestseal.com/dashboard.html?domain={domain}
+- `{check_url}` -- https://api.attestseal.com/v1/check/{domain}
 
 ## Split-test protocol
 
@@ -45,7 +45,7 @@ Insert these into subject or body where a merchant-specific value is known. Both
 
 Hi {first_name},
 
-We run OpenTrustSeal, an independent trust attestation API that AI shopping agents call before they pay a merchant. Agents use our score to decide whether to proceed, flag for human review, or refuse a transaction.
+We run AttestSeal, an independent trust attestation API that AI shopping agents call before they pay a merchant. Agents use our score to decide whether to proceed, flag for human review, or refuse a transaction.
 
 {domain} currently scores {trust_score}/100 (CAUTION). The top three fixes:
 
@@ -61,8 +61,8 @@ No signup, no API key. The score is free and always will be.
 Happy to walk you through it if helpful.
 
 Allen Lu
-OpenTrustSeal
-alu@opentrustseal.com
+AttestSeal
+alu@attestseal.com
 
 ## Template B -- incomplete_evidence (blocked crawler, score artificially low)
 
@@ -71,7 +71,7 @@ alu@opentrustseal.com
 
 Hi {first_name},
 
-We run OpenTrustSeal, the trust API that AI shopping agents call before transacting. We score every domain in the Tranco top-100K on six signal categories (reputation, identity, content, domain age, SSL, DNS).
+We run AttestSeal, the trust API that AI shopping agents call before transacting. We score every domain in the Tranco top-100K on six signal categories (reputation, identity, content, domain age, SSL, DNS).
 
 {domain} scored {trust_score}/100 (CAUTION), but not because your site has issues. Our crawler could not read your homepage content: bot protection blocked the fetch. We have the other five signals, but without content we cannot verify your privacy policy, terms, or contact info, so the score is capped.
 
@@ -84,8 +84,8 @@ Two paths to raise it:
 Either path moves you to PROCEED. Agents pay PROCEED merchants without asking the user; they flag CAUTION ones for human approval, which kills conversion.
 
 Allen Lu
-OpenTrustSeal
-alu@opentrustseal.com
+AttestSeal
+alu@attestseal.com
 
 ## Template C -- new_domain (under 1 year old)
 
@@ -94,7 +94,7 @@ alu@opentrustseal.com
 
 Hi {first_name},
 
-OpenTrustSeal scores {domain} at {trust_score}/100 (CAUTION) primarily because the domain is under one year old. Domain age is an unfakeable trust signal, so newer domains start lower by default.
+AttestSeal scores {domain} at {trust_score}/100 (CAUTION) primarily because the domain is under one year old. Domain age is an unfakeable trust signal, so newer domains start lower by default.
 
 Two things shorten the path to PROCEED:
 
@@ -105,8 +105,8 @@ Two things shorten the path to PROCEED:
 Domain age will climb on its own over the next 12 months. Registration plus clean content signals get you most of the way there immediately.
 
 Allen Lu
-OpenTrustSeal
-alu@opentrustseal.com
+AttestSeal
+alu@attestseal.com
 
 ## Template D -- infrastructure (API / CDN / non-consumer)
 
@@ -115,7 +115,7 @@ alu@opentrustseal.com
 
 Hi {first_name},
 
-OpenTrustSeal scores {domain} at {trust_score}/100. The site appears to be an API or infrastructure service, not a consumer storefront. Our default scoring model weighs content signals like privacy policy and contact info, which matter less for infrastructure.
+AttestSeal scores {domain} at {trust_score}/100. The site appears to be an API or infrastructure service, not a consumer storefront. Our default scoring model weighs content signals like privacy policy and contact info, which matter less for infrastructure.
 
 If that is correct, claim your dashboard and set your site category to `api_service` or `infrastructure`:
 
@@ -124,8 +124,8 @@ If that is correct, claim your dashboard and set your site category to `api_serv
 The infrastructure scoring model weighs security headers, documented endpoints, and certificate posture instead. Your score will reflect what actually matters for your category.
 
 Allen Lu
-OpenTrustSeal
-alu@opentrustseal.com
+AttestSeal
+alu@attestseal.com
 
 ## Follow-up template (no reply after 7 days)
 
@@ -139,13 +139,13 @@ Following up on this. If the timing is wrong, no problem. If you want to see wha
 The short version: AI shopping agents are using trust scores to decide what to buy. Merchants stuck at CAUTION lose those transactions to merchants at PROCEED. The fixes are small; the conversion delta is not.
 
 Allen Lu
-OpenTrustSeal
-alu@opentrustseal.com
+AttestSeal
+alu@attestseal.com
 
 ## Sending notes
 
 - Send in batches of 50, not more, to keep list-unsubscribe warm
-- Always BCC alu@opentrustseal.com so replies thread into one inbox
+- Always BCC alu@attestseal.com so replies thread into one inbox
 - If the domain scored CAUTION with confidence=low and caution_reason=incomplete_evidence, use Template B
 - If caution_reason=new_domain, use Template C
 - If caution_reason=infrastructure, use Template D
@@ -175,7 +175,7 @@ The key conversion metric is not reply rate but `score_after - score_at_send` av
 
 ## Deliverability pre-flight
 
-Before the first batch goes out from alu@opentrustseal.com:
+Before the first batch goes out from alu@attestseal.com:
 
 - Verify SPF record includes the sending IP or service. Currently `v=spf1 +mx +ip4:96.31.72.73 include:spf.gzo.com ~all`. If sending from a new service like Postmark or SendGrid, add their include.
 - Verify DMARC is `p=quarantine` or stricter (already enforced at `p=quarantine` as of 2026-04-13).

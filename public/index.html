@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenTrustSeal - Independent trust attestation for agentic commerce</title>
+<title>AttestSeal - Independent trust attestation for agentic commerce</title>
 <meta name="description" content="The independent trust attestation layer for AI agent payments. Signed evidence bundles, longitudinal trust profiles, compositional brand anchors. Free site audit or one API call before any transaction.">
 <link rel="icon" type="image/png" href="/otsseal.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -190,14 +190,14 @@ footer a{color:var(--text-light)}
 <nav class="nav" aria-label="Main">
 <div class="nav-inner">
 <a href="/" class="nav-brand">
-<img src="/otslogo.png" alt="OpenTrustSeal" height="32">
+<img src="/otslogo.png" alt="AttestSeal" height="32">
 </a>
 <div class="nav-links">
 <a href="#how">How It Works</a>
 <a href="/register.html">Register</a>
 <a href="/dashboard.html">Dashboard</a>
 <a href="#developers">Developers</a>
-<a href="https://api.opentrustseal.com/docs" class="nav-cta">API Docs</a>
+<a href="https://api.attestseal.com/docs" class="nav-cta">API Docs</a>
 </div>
 </div>
 </nav>
@@ -208,7 +208,7 @@ footer a{color:var(--text-light)}
 <div class="container">
 <img src="/otslogo.png" alt="" class="hero-logo" aria-hidden="true">
 <h1>Should your AI agent pay this site?</h1>
-<p class="subtitle">OpenTrustSeal is the independent trust attestation layer for AI agent commerce. One API call returns a cryptographically signed evidence bundle with a 0-100 trust score, a PROCEED / CAUTION / DENY recommendation, a confidence rating, and a reason keyed to the verdict. Neutral -- we are not a payment rail. Free for merchants. Free tier for developers.</p>
+<p class="subtitle">AttestSeal is the independent trust attestation layer for AI agent commerce. One API call returns a cryptographically signed evidence bundle with a 0-100 trust score, a PROCEED / CAUTION / DENY recommendation, a confidence rating, and a reason keyed to the verdict. Neutral -- we are not a payment rail. Free for merchants. Free tier for developers.</p>
 </div>
 </header>
 
@@ -282,7 +282,7 @@ footer a{color:var(--text-light)}
 <section id="how">
 <div class="container">
 <h2>How it works</h2>
-<p style="color:var(--text-light);max-width:600px">Payment rails (Stripe, x402, Visa AP2, Skyfire) handle how agents pay. OpenTrustSeal answers the question that comes first: should this agent pay this merchant at all?</p>
+<p style="color:var(--text-light);max-width:600px">Payment rails (Stripe, x402, Visa AP2, Skyfire) handle how agents pay. AttestSeal answers the question that comes first: should this agent pay this merchant at all?</p>
 <div class="how-grid">
 <div class="how-card">
 <div class="how-num">1</div>
@@ -307,7 +307,7 @@ footer a{color:var(--text-light)}
 <div class="how-card">
 <div class="how-num">5</div>
 <h3>Neutral by design</h3>
-<p>OpenTrustSeal is not a payment processor. We never handle money. We never gatekeep transactions. A trust authority that also processes payments has a structural conflict of interest when scoring the merchants it processes for. Our neutrality is a feature that payment rails cannot replicate without divesting their merchant relationships.</p>
+<p>AttestSeal is not a payment processor. We never handle money. We never gatekeep transactions. A trust authority that also processes payments has a structural conflict of interest when scoring the merchants it processes for. Our neutrality is a feature that payment rails cannot replicate without divesting their merchant relationships.</p>
 </div>
 </div>
 </div>
@@ -337,18 +337,18 @@ footer a{color:var(--text-light)}
 <p style="margin-bottom:1rem">Verify any domain before a transaction. Signed with Ed25519 so results cannot be forged. Works today with LangChain, CrewAI, OpenAI tools, and any agent framework that can make an HTTP call.</p>
 <div class="code-block">
 <span class="comment"># Check any domain before your agent pays</span><br>
-<span class="comment"># GET https://api.opentrustseal.com/v1/check/merchant.com</span><br>
+<span class="comment"># GET https://api.attestseal.com/v1/check/merchant.com</span><br>
 <br>
 <span class="kw">import</span> httpx<br>
 <br>
-r = httpx.<span class="fn">get</span>(<span class="str">"https://api.opentrustseal.com/v1/check/chewy.com"</span>)<br>
+r = httpx.<span class="fn">get</span>(<span class="str">"https://api.attestseal.com/v1/check/chewy.com"</span>)<br>
 data = r.<span class="fn">json</span>()<br>
 <br>
 <span class="comment"># data["trustScore"]       -> 77</span><br>
 <span class="comment"># data["recommendation"]   -> "PROCEED" | "CAUTION" | "DENY"</span><br>
 <span class="comment"># data["confidence"]       -> "high" | "medium" | "low"</span><br>
 <span class="comment"># data["cautionReason"]    -> "incomplete_evidence" | "weak_signals" | "new_domain" | "infrastructure" | null</span><br>
-<span class="comment"># data["scoringModel"]     -> "ots-v1.4-weights"</span><br>
+<span class="comment"># data["scoringModel"]     -> "attestseal-v1.4-weights"</span><br>
 <span class="comment"># data["brandTier"]        -> "well_known" | "scored"</span><br>
 <span class="comment"># data["signals"]          -> 6-category evidence breakdown</span><br>
 <span class="comment"># data["signature"]        -> Ed25519 cryptographic proof (covers all above)</span><br>
@@ -364,7 +364,7 @@ data = r.<span class="fn">json</span>()<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span>:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">confirm_with_user</span>(data[<span class="str">"reasoning"</span>])<br>
 </div>
-<p style="font-size:0.85rem">Free tier: 60 requests/minute, 10,000/month. <a href="https://api.opentrustseal.com/docs" style="color:#93c5fd">API docs</a> | <a href="/examples/" style="color:#93c5fd">Integration examples</a> | <a href="/marketing/" style="color:#93c5fd">How scoring works</a></p>
+<p style="font-size:0.85rem">Free tier: 60 requests/minute, 10,000/month. <a href="https://api.attestseal.com/docs" style="color:#93c5fd">API docs</a> | <a href="/examples/" style="color:#93c5fd">Integration examples</a> | <a href="/marketing/" style="color:#93c5fd">How scoring works</a></p>
 </div>
 </section>
 
@@ -372,14 +372,14 @@ data = r.<span class="fn">json</span>()<br>
 
 <footer>
 <div class="container">
-<img src="/otslogo.png" alt="OpenTrustSeal" class="footer-logo">
-<p>OpenTrustSeal, Inc. -- Independent trust attestation for AI agent commerce</p>
+<img src="/otslogo.png" alt="AttestSeal" class="footer-logo">
+<p>AttestSeal, Inc. -- Independent trust attestation for AI agent commerce</p>
 <p style="margin-top:0.5rem">
-<a href="https://api.opentrustseal.com/docs">API Docs</a> &middot;
+<a href="https://api.attestseal.com/docs">API Docs</a> &middot;
 <a href="/dashboard.html">Dashboard</a> &middot;
-<a href="https://opentrustseal.github.io/status/">System Status</a> &middot;
+<a href="https://attestseal.github.io/status/">System Status</a> &middot;
 <a href="/register.html">Register</a> &middot;
-<a href="mailto:alu@opentrustseal.com">Contact</a>
+<a href="mailto:alu@attestseal.com">Contact</a>
 </p>
 </div>
 </footer>
@@ -472,7 +472,7 @@ function showResults(d){
 
 function pollForResult(domain, attempt){
   if(attempt > 12) return; // stop after ~60s of polling
-  fetch('https://api.opentrustseal.com/v1/check/' + encodeURIComponent(domain))
+  fetch('https://api.attestseal.com/v1/check/' + encodeURIComponent(domain))
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.trustScore !== undefined){
@@ -511,7 +511,7 @@ function doCheck(){
   var controller = new AbortController();
   var timeoutId = setTimeout(function(){ controller.abort(); }, 90000);
 
-  fetch('https://api.opentrustseal.com/v1/check/' + encodeURIComponent(domain), {signal: controller.signal})
+  fetch('https://api.attestseal.com/v1/check/' + encodeURIComponent(domain), {signal: controller.signal})
     .then(function(r){ clearTimeout(timeoutId); return r.json(); })
     .then(function(d){
       if(d.trustScore !== undefined){
@@ -545,7 +545,7 @@ function renderItems(items){
     html += '<div class="cl-body">';
     html += '<div class="cl-title">' + esc(item.item) + ' <span class="cl-impact">' + item.impact + '</span></div>';
     if(item.status !== 'pass'){
-      if(item.item === 'Registered with OpenTrustSeal'){
+      if(item.item === 'Registered with AttestSeal'){
         html += '<a href="/register.html" class="cl-toggle" style="display:inline-block;margin-top:0.2rem">Register now (free)</a>';
       } else {
         html += '<button class="cl-toggle" type="button">How to fix</button>';
@@ -570,7 +570,7 @@ input.addEventListener('keydown', function(e){ if(e.key === 'Enter') doCheck(); 
 // gracefully: if the endpoint is not deployed or returns an error, the
 // section hides itself rather than showing broken placeholders.
 (function(){
-  var STATS_URL = 'https://api.opentrustseal.com/v1/stats/dataset';
+  var STATS_URL = 'https://api.attestseal.com/v1/stats/dataset';
   var section = document.getElementById('stats');
   if(!section) return;
 

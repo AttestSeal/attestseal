@@ -13,7 +13,7 @@ VPS="$1"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SERVER_DIR="$(dirname "$SCRIPT_DIR")/server"
 
-echo "Deploying OpenTrustSeal to $VPS..."
+echo "Deploying AttestSeal to $VPS..."
 
 # Sync server code (exclude venv, data, keys, pycache)
 rsync -avz --delete \
@@ -23,15 +23,15 @@ rsync -avz --delete \
     --exclude='logs/' \
     --exclude='__pycache__/' \
     --exclude='.pytest_cache/' \
-    "$SERVER_DIR/" "$VPS:/opt/opentrustseal/"
+    "$SERVER_DIR/" "$VPS:/opt/attestseal/"
 
 # Make sure runtime dirs the systemd unit relies on still exist. rsync
 # --delete with server-side state wipes any path that isn't in the source
 # tree, so runtime-only directories must be recreated here.
-ssh "$VPS" "mkdir -p /opt/opentrustseal/logs && chown -R ott:ott /opt/opentrustseal/logs"
+ssh "$VPS" "mkdir -p /opt/attestseal/logs && chown -R ats:ats /opt/attestseal/logs"
 
 # Restart service
-ssh "$VPS" "systemctl restart opentrustseal && echo 'Service restarted'"
+ssh "$VPS" "systemctl restart attestseal && echo 'Service restarted'"
 
 # Health check
 echo "Waiting for startup..."

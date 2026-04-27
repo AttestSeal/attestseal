@@ -19,19 +19,19 @@ Phase 2 succeeds when the incomplete-evidence set shrinks by at least 60%. The r
 
 ### Step 1 -- Gather all per-droplet DBs to one merge host
 
-Pick any box with disk (the API box works, or a fresh merge droplet). Each per-droplet DB follows the naming `ots-{pid}.db`. Pull every one into a single directory:
+Pick any box with disk (the API box works, or a fresh merge droplet). Each per-droplet DB follows the naming `ats-{pid}.db`. Pull every one into a single directory:
 
 ```bash
 # On merge host
 mkdir -p /tmp/seed-dbs
 
-# For each of ots-seed-1 .. ots-seed-18:
+# For each of ats-seed-1 .. ats-seed-18:
 for ip in 138.68.30.188 146.190.142.163 142.93.248.84 138.197.129.121 \
           142.93.34.243 68.183.13.238 137.184.1.1 64.23.228.248 \
           149.28.169.34 66.42.118.203 144.202.17.121 45.76.174.191 \
           216.128.176.173 45.77.88.41 104.238.158.94 207.148.102.73 \
           144.202.93.207 45.77.148.196; do
-  scp -o StrictHostKeyChecking=accept-new root@${ip}:/opt/ots-seed/data/ots-*.db \
+  scp -o StrictHostKeyChecking=accept-new root@${ip}:/opt/ats-seed/data/ats-*.db \
       /tmp/seed-dbs/seed-${ip//./-}-$(date +%s).db 2>&1 | tail -1
 done
 
@@ -43,7 +43,7 @@ Expected: 18 files, ~10-50MB each depending on how many domains that seed covere
 ### Step 2 -- Generate the completion list with --dry-run first
 
 ```bash
-cd /path/to/opentrusttoken/server/scripts
+cd /path/to/attestseal/server/scripts
 python3 generate_completion_list.py /tmp/seed-dbs/ --dry-run
 ```
 
@@ -77,7 +77,7 @@ Copy each file to the matching seed box:
 ```bash
 for i in 1 2 3 4 5 6; do
   # map seed-i to its IP -- see project_seed_cluster.md
-  scp /tmp/completion-part-$((i-1)) root@${SEED_IP}:/opt/ots-seed/completion.txt
+  scp /tmp/completion-part-$((i-1)) root@${SEED_IP}:/opt/ats-seed/completion.txt
 done
 ```
 
@@ -86,19 +86,19 @@ done
 On each seed 1-6:
 
 ```bash
-cd /opt/ots-seed
+cd /opt/ats-seed
 # Full ladder mode: no --fast, longer timeouts, tier 2-5 enabled
-OTS_DATA_DIR=/opt/ots-seed/data \
-  python3 crawl_seed.py /opt/ots-seed/completion.txt \
+ATS_DATA_DIR=/opt/ats-seed/data \
+  python3 crawl_seed.py /opt/ats-seed/completion.txt \
   --workers 3 \
-  > /var/log/ots-completion.log 2>&1 &
+  > /var/log/ats-completion.log 2>&1 &
 ```
 
 Notes:
 - `--workers 3` is lower than the initial pass because Playwright (tier 2) uses more memory and CPU per worker.
 - No `--fast` flag -- we want the full escalation ladder.
 - No `--resume` flag -- this is a fresh list, not a resumption.
-- The per-process DB fix still applies. Each worker writes to its own `ots-{pid}.db`. Merge at the end.
+- The per-process DB fix still applies. Each worker writes to its own `ats-{pid}.db`. Merge at the end.
 
 ### Step 6 -- Monitor
 
@@ -108,7 +108,7 @@ Monitor via the existing progress file:
 
 ```bash
 watch -n 10 "for i in 1 2 3 4 5 6; do \
-  ssh root@\${SEED_${i}_IP} 'cat /opt/ots-seed/data/.seed-progress.json 2>/dev/null | head -c 200'; \
+  ssh root@\${SEED_${i}_IP} 'cat /opt/ats-seed/data/.seed-progress.json 2>/dev/null | head -c 200'; \
   echo; \
 done"
 ```
@@ -120,11 +120,11 @@ After all 6 completion seeds finish:
 ```bash
 # Pull completion DBs
 for i in 1 2 3 4 5 6; do
-  scp root@${SEED_IP}:/opt/ots-seed/data/ots-*.db /tmp/completion-dbs/
+  scp root@${SEED_IP}:/opt/ats-seed/data/ats-*.db /tmp/completion-dbs/
 done
 
 # Merge into the already-merged Phase 1 DB
-cd /path/to/opentrusttoken/server
+cd /path/to/attestseal/server
 python3 merge_db.py --source /tmp/completion-dbs/ --target /tmp/seed-dbs/merged.db --dry-run
 # review the plan, then run without --dry-run
 

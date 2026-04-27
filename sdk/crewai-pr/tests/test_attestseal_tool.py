@@ -1,7 +1,7 @@
-"""Unit tests for OpenTrustSealTool.
+"""Unit tests for AttestSealTool.
 
-Mocks the OpenTrustSeal API so tests do not hit the live endpoint. Place
-at lib/crewai-tools/tests/tools/test_opentrustseal_tool.py in the
+Mocks the AttestSeal API so tests do not hit the live endpoint. Place
+at lib/crewai-tools/tests/tools/test_attestseal_tool.py in the
 crewAIInc/crewAI repo layout before opening the PR.
 """
 
@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from opentrustseal_tool.opentrustseal_tool import OpenTrustSealTool
+from attestseal_tool.attestseal_tool import AttestSealTool
 
 
 PROCEED_RESPONSE = {
@@ -58,7 +58,7 @@ CAUTION_LOW_CONFIDENCE_RESPONSE = {
 
 
 def test_run_proceed_produces_expected_structure():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     mock_resp = MagicMock()
     mock_resp.json.return_value = PROCEED_RESPONSE
     mock_resp.raise_for_status = MagicMock()
@@ -67,7 +67,7 @@ def test_run_proceed_produces_expected_structure():
     mock_client.__enter__.return_value.get.return_value = mock_resp
 
     with patch(
-        "opentrustseal_tool.opentrustseal_tool.httpx.Client",
+        "attestseal_tool.attestseal_tool.httpx.Client",
         return_value=mock_client,
     ):
         out = tool._run("stripe.com")
@@ -77,11 +77,11 @@ def test_run_proceed_produces_expected_structure():
     assert lines[1] == "Trust Score: 88/100 (PROCEED)"
     assert "Evidence confidence: high" in out
     assert "ACTION: Safe to proceed with this merchant." in out
-    assert out.strip().endswith("(verify at did:web:opentrustseal.com)")
+    assert out.strip().endswith("(verify at did:web:attestseal.com)")
 
 
 def test_run_low_confidence_caution_emits_low_dollar_guidance():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     mock_resp = MagicMock()
     mock_resp.json.return_value = CAUTION_LOW_CONFIDENCE_RESPONSE
     mock_resp.raise_for_status = MagicMock()
@@ -90,7 +90,7 @@ def test_run_low_confidence_caution_emits_low_dollar_guidance():
     mock_client.__enter__.return_value.get.return_value = mock_resp
 
     with patch(
-        "opentrustseal_tool.opentrustseal_tool.httpx.Client",
+        "attestseal_tool.attestseal_tool.httpx.Client",
         return_value=mock_client,
     ):
         out = tool._run("example-blocked-merchant.com")
@@ -101,12 +101,12 @@ def test_run_low_confidence_caution_emits_low_dollar_guidance():
 
 
 def test_run_handles_network_error_gracefully():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     mock_client = MagicMock()
     mock_client.__enter__.return_value.get.side_effect = Exception("connection refused")
 
     with patch(
-        "opentrustseal_tool.opentrustseal_tool.httpx.Client",
+        "attestseal_tool.attestseal_tool.httpx.Client",
         return_value=mock_client,
     ):
         out = tool._run("unreachable.example")
@@ -121,7 +121,7 @@ def test_malware_flag_overrides_proceed_recommendation():
     resp["recommendation"] = "DENY"
     resp["trustScore"] = 10
 
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     mock_resp = MagicMock()
     mock_resp.json.return_value = resp
     mock_resp.raise_for_status = MagicMock()
@@ -130,7 +130,7 @@ def test_malware_flag_overrides_proceed_recommendation():
     mock_client.__enter__.return_value.get.return_value = mock_resp
 
     with patch(
-        "opentrustseal_tool.opentrustseal_tool.httpx.Client",
+        "attestseal_tool.attestseal_tool.httpx.Client",
         return_value=mock_client,
     ):
         out = tool._run("malicious.example")
@@ -140,7 +140,7 @@ def test_malware_flag_overrides_proceed_recommendation():
 
 @pytest.mark.asyncio
 async def test_arun_matches_run_output():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
 
     mock_resp = MagicMock()
     mock_resp.json.return_value = PROCEED_RESPONSE
@@ -150,7 +150,7 @@ async def test_arun_matches_run_output():
     mock_client.__aenter__.return_value.get = AsyncMock(return_value=mock_resp)
 
     with patch(
-        "opentrustseal_tool.opentrustseal_tool.httpx.AsyncClient",
+        "attestseal_tool.attestseal_tool.httpx.AsyncClient",
         return_value=mock_client,
     ):
         out = await tool._arun("stripe.com")
@@ -159,19 +159,19 @@ async def test_arun_matches_run_output():
 
 
 def test_domain_normalization_strips_schemes_and_paths():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     assert tool._normalize_domain("https://Stripe.com/checkout") == "stripe.com"
     assert tool._normalize_domain("  HTTP://merchant.example  ") == "merchant.example"
     assert tool._normalize_domain("plain.com") == "plain.com"
 
 
 def test_package_dependencies_declared():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     assert "httpx" in tool.package_dependencies
 
 
 def test_env_vars_declared_as_non_required():
-    tool = OpenTrustSealTool()
+    tool = AttestSealTool()
     names = [ev.name for ev in tool.env_vars]
     assert "OPENTRUSTSEAL_API_KEY" in names
     assert "OPENTRUSTSEAL_BASE_URL" in names

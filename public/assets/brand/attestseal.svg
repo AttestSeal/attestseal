@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-labelledby="title desc">
+  <title id="title">AttestSeal logo</title>
+  <desc id="desc">A scalloped navy seal containing a white A and teal check mark above the AttestSeal wordmark.</desc>
+  <g transform="translate(232 34)">
+    <g fill="#06285D">
+      <circle cx="128" cy="36" r="31"/>
+      <circle cx="163.2" cy="43" r="31"/>
+      <circle cx="193.1" cy="62.9" r="31"/>
+      <circle cx="213" cy="92.8" r="31"/>
+      <circle cx="220" cy="128" r="31"/>
+      <circle cx="213" cy="163.2" r="31"/>
+      <circle cx="193.1" cy="193.1" r="31"/>
+      <circle cx="163.2" cy="213" r="31"/>
+      <circle cx="128" cy="220" r="31"/>
+      <circle cx="92.8" cy="213" r="31"/>
+      <circle cx="62.9" cy="193.1" r="31"/>
+      <circle cx="43" cy="163.2" r="31"/>
+      <circle cx="36" cy="128" r="31"/>
+      <circle cx="43" cy="92.8" r="31"/>
+      <circle cx="62.9" cy="62.9" r="31"/>
+      <circle cx="92.8" cy="43" r="31"/>
+      <circle cx="128" cy="128" r="89"/>
+    </g>
+
+    <circle cx="128" cy="128" r="70" fill="none" stroke="#FFFFFF" stroke-width="6.5"/>
+    <circle cx="128" cy="128" r="60" fill="none" stroke="#FFFFFF" stroke-width="3.5" opacity="0.92"/>
+
+    <path fill="#FFFFFF" fill-rule="evenodd" d="M73.6 181.8 113.5 75.2h29.1l40.2 106.6h-25.5l-9.6-27.1h-39.4l-9.5 27.1H73.6Zm41.1-47.2h26.8l-13.5-38-13.3 38Z"/>
+
+    <path fill="#14B8A6" d="m132.6 178.3-28.8-28.8 11.5-11.5 17.5 17.6 43.3-47.9 12.1 10.9-55.6 59.7Z"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="800" letter-spacing="0">
+    <text x="421" y="433" text-anchor="end" fill="#06285D">Attest</text>
+    <text x="421" y="433" text-anchor="start" fill="#14B8A6">Seal</text>
+  </g>
+</svg>

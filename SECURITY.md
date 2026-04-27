@@ -1,21 +1,21 @@
 # Security Policy
 
-OpenTrustSeal takes security seriously. The service produces signed attestations that AI agents use to decide whether to transact with a merchant, so a vulnerability here can directly impact real-world money movement. This document tells you how to report an issue and what you can expect from us.
+AttestSeal takes security seriously. The service produces signed attestations that AI agents use to decide whether to transact with a merchant, so a vulnerability here can directly impact real-world money movement. This document tells you how to report an issue and what you can expect from us.
 
 ## Supported versions
 
-We support the latest production deployment at `api.opentrustseal.com`. Older scoring-model versions (e.g. `ots-v1.3-weights`) remain valid for any already-signed bundles, but new fixes land only on the current model.
+We support the latest production deployment at `api.attestseal.com`. Older scoring-model versions (e.g. `attestseal-v1.3-weights`) remain valid for any already-signed bundles, but new fixes land only on the current model.
 
 | Component | Version in production |
 |---|---|
 | API server | HEAD of `main` on this repository |
-| Scoring model | `ots-v1.4-weights` |
+| Scoring model | `attestseal-v1.4-weights` |
 | Signing algorithm | Ed25519 over a canonical JSON payload |
-| DID method | `did:web:opentrustseal.com` |
+| DID method | `did:web:attestseal.com` |
 
 ## Reporting a vulnerability
 
-Email **alu@opentrustseal.com** with:
+Email **alu@attestseal.com** with:
 
 - A clear description of the issue.
 - Steps to reproduce, ideally with a minimal test case.
@@ -58,14 +58,14 @@ If you make a good-faith effort to follow this policy -- report privately, avoid
 
 The signing key and the transparency log are the two assets whose integrity matters most:
 
-- **Signing keys** live at `/opt/opentrustseal/keys/` on the API box. They never leave the box; only the public portion is published at `https://opentrustseal.com/.well-known/did.json`. A compromise of the signing key would let an attacker mint arbitrary attestations under our DID -- report this with maximum urgency.
+- **Signing keys** live at `/opt/attestseal/keys/` on the API box. They never leave the box; only the public portion is published at `https://attestseal.com/.well-known/did.json`. A compromise of the signing key would let an attacker mint arbitrary attestations under our DID -- report this with maximum urgency.
 - **Transparency log** is an append-only hash chain over every attestation. Any finding that lets you insert, delete, or reorder entries without the chain detecting it is a critical issue.
 
 ## Verifying an attestation
 
 Agents and auditors can verify any response we sign:
 
-1. Fetch our DID document: `curl https://opentrustseal.com/.well-known/did.json`
+1. Fetch our DID document: `curl https://attestseal.com/.well-known/did.json`
 2. Extract the Ed25519 public key from `verificationMethod`.
 3. Re-canonicalize the response's signable fields (`domain`, `trustScore`, `scoringModel`, `recommendation`, `confidence`, `cautionReason`, plus the full `signals` block).
 4. Verify the Ed25519 signature in the response against the canonical bytes.
@@ -78,6 +78,6 @@ We publish a short post-mortem for any confirmed critical or high-severity findi
 
 ## Contact
 
-- Security: alu@opentrustseal.com
-- General: alu@opentrustseal.com
-- Signed by: did:web:opentrustseal.com
+- Security: alu@attestseal.com
+- General: alu@attestseal.com
+- Signed by: did:web:attestseal.com

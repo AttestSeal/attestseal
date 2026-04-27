@@ -297,10 +297,10 @@ Recommendation:                 DENY (flag override: MALWARE_DETECTED)
 
 **Stream 3: Transaction Insurance (per-transaction)**
 
-For enterprise-tier sites, OTT offers transaction insurance:
+For enterprise-tier sites, ATS offers transaction insurance:
 - $0.10 per verified transaction (floor)
 - Coverage up to $50,000 per incident
-- Underwritten by insurance partner (OTT takes 20--30% of premium)
+- Underwritten by insurance partner (ATS takes 20--30% of premium)
 - This only works at scale (100K+ insured transactions/month)
 
 ### 4.2 Revenue Projections
@@ -343,7 +343,7 @@ get verified. You'll lose revenue from the fastest-growing payment channel
 in history."
 
 This is the Let's Encrypt moment inverted. Let's Encrypt made SSL free so
-everyone would adopt it. OTT makes basic verification free, but charges for
+everyone would adopt it. ATS makes basic verification free, but charges for
 the verification level that agents actually trust enough to send money.
 
 The ceiling system makes this visceral. A site owner logs into the dashboard,
@@ -417,7 +417,7 @@ certificates come from independent CAs, not from browser vendors.
 
 If Stripe wants to integrate trust verification into their agent payments, they
 want to call someone else's API, not maintain their own trust database. That
-someone else is OTT.
+someone else is ATS.
 
 The defense is speed and adoption. Get to 10K verified sites before anyone
 else takes this seriously. Then you're the dataset, and datasets compound.

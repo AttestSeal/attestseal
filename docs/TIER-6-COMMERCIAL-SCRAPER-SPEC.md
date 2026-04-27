@@ -1,6 +1,6 @@
 # Tier 6 -- Commercial Scraper API Integration Spec
 
-Design for adding a commercial-scraper tier to the OpenTrustSeal fetch escalation ladder. Rescues content fetches that defeat every owned-infrastructure tier (1 direct, 1.5 protocol probe, 2 crawler-Playwright, 3 crawler-Playwright-through-Decodo, 4 residential Mac Air / gaming PC, 5 Wayback). Gated to keep recurring cost predictable.
+Design for adding a commercial-scraper tier to the AttestSeal fetch escalation ladder. Rescues content fetches that defeat every owned-infrastructure tier (1 direct, 1.5 protocol probe, 2 crawler-Playwright, 3 crawler-Playwright-through-Decodo, 4 residential Mac Air / gaming PC, 5 Wayback). Gated to keep recurring cost predictable.
 
 ## Why this exists
 
@@ -91,7 +91,7 @@ For comparison: scraper-API without the 3-strike gate, called on every tier-5-fa
 
 ## Environment + configuration
 
-New env file at `/etc/opentrustseal/scraper.env` (mode 640 root:ott):
+New env file at `/etc/attestseal/scraper.env` (mode 640 root:ott):
 
 ```
 SCRAPER_PROVIDER=brightdata              # or zenrows, scraperapi
@@ -114,7 +114,7 @@ New function in `server/app/fetch_escalation.py`, mirroring the existing tier fu
 # Gated behind a 3-strike accumulator so we only pay for domains that
 # have genuinely defeated every other tier across multiple retries.
 
-_SCRAPER_ENV = _load_env_file("/etc/opentrustseal/scraper.env")
+_SCRAPER_ENV = _load_env_file("/etc/attestseal/scraper.env")
 SCRAPER_PROVIDER = _SCRAPER_ENV.get("SCRAPER_PROVIDER", "").lower()
 SCRAPER_API_KEY = _SCRAPER_ENV.get("SCRAPER_API_KEY", "")
 SCRAPER_ZONE = _SCRAPER_ENV.get("SCRAPER_ZONE", "")

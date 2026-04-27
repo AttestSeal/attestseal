@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parallel seed crawler for expanding the OTT registry to 100K+ domains.
+"""Parallel seed crawler for expanding the ATS registry to 100K+ domains.
 
 Usage:
     python3 crawl_seed.py --top 100000                # Seed from Tranco top-100K
@@ -35,19 +35,19 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Per-process DB isolation: set BEFORE importing app modules so the
 # database module picks up the per-process path at import time.
-# Each process writes to its own ots-{pid}.db to prevent concurrent
+# Each process writes to its own ats-{pid}.db to prevent concurrent
 # write corruption across multiple crawl_seed processes.
 _pid = os.getpid()
-_data_dir = Path(os.environ.get("OTS_DATA_DIR", "./data"))
-os.environ["OTS_DB_PATH"] = str(_data_dir / f"ots-{_pid}.db")
+_data_dir = Path(os.environ.get("ATS_DATA_DIR", "./data"))
+os.environ["ATS_DB_PATH"] = str(_data_dir / f"ats-{_pid}.db")
 
 from app.pipeline import run_check
 from app.database import init_db, store_check, _get_conn
 from app.signing import ensure_keys
 
 
-CHECKPOINT_FILE = Path(os.environ.get("OTS_DATA_DIR", "./data")) / ".seed-checkpoint.json"
-PROGRESS_FILE = Path(os.environ.get("OTS_DATA_DIR", "./data")) / ".seed-progress.json"
+CHECKPOINT_FILE = Path(os.environ.get("ATS_DATA_DIR", "./data")) / ".seed-checkpoint.json"
+PROGRESS_FILE = Path(os.environ.get("ATS_DATA_DIR", "./data")) / ".seed-progress.json"
 
 
 # ---------------------------------------------------------------------------
@@ -56,7 +56,7 @@ PROGRESS_FILE = Path(os.environ.get("OTS_DATA_DIR", "./data")) / ".seed-progress
 
 def get_tranco_top(n: int) -> list[str]:
     """Return the top N domains from the Tranco CSV."""
-    data_dir = Path(os.environ.get("OTS_DATA_DIR", "./data"))
+    data_dir = Path(os.environ.get("ATS_DATA_DIR", "./data"))
     tranco_file = data_dir / "tranco.csv"
     if not tranco_file.exists():
         print(f"FATAL: Tranco list not found at {tranco_file}", flush=True)
@@ -260,7 +260,7 @@ def parse_args() -> dict:
 async def main() -> int:
     cfg = parse_args()
 
-    print(f"DB: {os.environ.get('OTS_DB_PATH')}", flush=True)
+    print(f"DB: {os.environ.get('ATS_DB_PATH')}", flush=True)
 
     # ---- Fast mode: optimize for coverage over completeness ---------------
     # Caps WHOIS at 5s (instead of 30s), disables Playwright tiers 2-4
@@ -276,9 +276,9 @@ async def main() -> int:
         # module may already be loaded (crawl_seed imports app.pipeline
         # which imports fetch_escalation), we also patch the module vars
         # directly.
-        os.environ["OTS_CRAWLER_URL"] = ""
-        os.environ["OTS_CRAWLER_SECRET"] = ""
-        os.environ["OTS_MACBOOK_URL"] = ""
+        os.environ["ATS_CRAWLER_URL"] = ""
+        os.environ["ATS_CRAWLER_SECRET"] = ""
+        os.environ["ATS_MACBOOK_URL"] = ""
         try:
             from app import fetch_escalation as fe
             fe.CRAWLER_ENABLED = False

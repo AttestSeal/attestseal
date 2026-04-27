@@ -1,4 +1,4 @@
-"""OpenTrustSeal API Server.
+"""AttestSeal API Server.
 
 Run with: uvicorn app.main:app --reload
 """
@@ -23,7 +23,7 @@ from .collectors import tranco
 API_VERSION = "0.2.0"
 
 app = FastAPI(
-    title="OpenTrustSeal API",
+    title="AttestSeal API",
     version=API_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -34,12 +34,12 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     schema = get_openapi(
-        title="OpenTrustSeal API",
+        title="AttestSeal API",
         version=API_VERSION,
         description="""
 ## Trust verification for AI agent commerce
 
-OpenTrustSeal provides pre-transaction trust checks for AI agents. One API call returns a cryptographically signed evidence bundle with a trust score and actionable checklist.
+AttestSeal provides pre-transaction trust checks for AI agents. One API call returns a cryptographically signed evidence bundle with a trust score and actionable checklist.
 
 ### Quick start
 
@@ -54,7 +54,7 @@ GET /v1/check/stripe.com
 - **Trust score** (0-100) computed from all signals
 - **Recommendation**: PROCEED (75+), CAUTION (40-74), DENY (0-39)
 - **Actionable checklist** showing what the site can improve
-- **Ed25519 signature** proving the result was issued by OpenTrustSeal
+- **Ed25519 signature** proving the result was issued by AttestSeal
 
 ### Authentication
 
@@ -62,20 +62,20 @@ Free tier requires no authentication. Rate limit: 60 requests/minute, 10,000/mon
 
 ### Scoring model
 
-Current model: `ots-v1.2-weights`. Weights: reputation 30%, identity 25%, content 17%, domain age 10%, SSL 10%, DNS 8%.
+Current model: `attestseal-v1.2-weights`. Weights: reputation 30%, identity 25%, content 17%, domain age 10%, SSL 10%, DNS 8%.
 
 The trust score is a computed summary of observable evidence. Every input is visible in the signals object. Agents can inspect individual signals or rely on the composite score.
 
 ### Links
 
-- [OpenTrustSeal website](https://opentrustseal.com)
+- [AttestSeal website](https://attestseal.com)
 - [DID Document](/.well-known/did.json) (public signing key)
         """,
         routes=app.routes,
     )
     schema["info"]["x-logo"] = {
-        "url": "https://opentrustseal.com/otslogo.png",
-        "altText": "OpenTrustSeal",
+        "url": "https://attestseal.com/otslogo.png",
+        "altText": "AttestSeal",
     }
     app.openapi_schema = schema
     return schema
@@ -106,7 +106,7 @@ async def startup():
 async def root():
     """Returns basic API info and links."""
     return {
-        "name": "OpenTrustSeal",
+        "name": "AttestSeal",
         "version": API_VERSION,
         "description": "Trust verification for AI agent commerce",
         "endpoints": {
@@ -126,21 +126,21 @@ async def did_document():
     """Returns the DID document containing the public Ed25519 signing key.
 
     Agents use this key to verify that trust tokens were signed by
-    OpenTrustSeal and have not been tampered with.
+    AttestSeal and have not been tampered with.
     """
     pub_key = get_public_key_multibase()
     return {
         "@context": "https://www.w3.org/ns/did/v1",
-        "id": "did:web:opentrustseal.com",
+        "id": "did:web:attestseal.com",
         "verificationMethod": [
             {
-                "id": "did:web:opentrustseal.com#signing-key-1",
+                "id": "did:web:attestseal.com#signing-key-1",
                 "type": "Ed25519VerificationKey2020",
-                "controller": "did:web:opentrustseal.com",
+                "controller": "did:web:attestseal.com",
                 "publicKeyMultibase": pub_key,
             }
         ],
-        "assertionMethod": ["did:web:opentrustseal.com#signing-key-1"],
+        "assertionMethod": ["did:web:attestseal.com#signing-key-1"],
     }
 
 

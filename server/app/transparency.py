@@ -1,6 +1,6 @@
 """Transparency log for trust attestation bundles.
 
-Provides tamper-evident logging of every attestation OTS issues. Each
+Provides tamper-evident logging of every attestation ATS issues. Each
 entry includes a per-domain hash chain: the entry's hash references the
 previous entry for the same domain, so retroactive modification of any
 entry breaks the chain and is detectable by anyone who verifies it.
@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from contextlib import contextmanager
 
-DB_PATH = Path(os.environ.get("OTS_DB_PATH", "./data/ots.db"))
+DB_PATH = Path(os.environ.get("ATS_DB_PATH", "./data/ots.db"))
 
 
 @contextmanager

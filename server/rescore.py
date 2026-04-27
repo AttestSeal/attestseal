@@ -281,8 +281,8 @@ def main():
             "checklist": cl,
             "checklistSummary": cl_summary,
             "signature": signature,
-            "signatureKeyId": "did:web:opentrustseal.com#signing-key-1",
-            "issuer": "did:web:opentrustseal.com",
+            "signatureKeyId": "did:web:attestseal.com#signing-key-1",
+            "issuer": "did:web:attestseal.com",
         }
         if not dry_run:
             store_check(domain, response)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge a source SQLite database into the production OTT database.
+"""Merge a source SQLite database into the production ATS database.
 
 Usage:
     python3 merge_db.py /path/to/source.db              # Merge into default DB
@@ -131,23 +131,23 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python3 merge_db.py /path/to/source.db [--target target.db] [--dry-run]")
         print("       python3 merge_db.py /path/to/dir/ [--target target.db] [--dry-run]")
-        print("       (directory mode merges all ots-*.db files in the dir)")
+        print("       (directory mode merges all ats-*.db files in the dir)")
         sys.exit(1)
 
     source_arg = sys.argv[1]
-    target = str(Path(os.environ.get("OTS_DB_PATH", "./data/ots.db")))
+    target = str(Path(os.environ.get("ATS_DB_PATH", "./data/ots.db")))
     dry_run = "--dry-run" in sys.argv
 
     for i, arg in enumerate(sys.argv):
         if arg == "--target" and i + 1 < len(sys.argv):
             target = sys.argv[i + 1]
 
-    # Support directory mode: merge all ots-*.db files in a directory
+    # Support directory mode: merge all ats-*.db files in a directory
     import glob
     if Path(source_arg).is_dir():
-        sources = sorted(glob.glob(str(Path(source_arg) / "ots-*.db")))
+        sources = sorted(glob.glob(str(Path(source_arg) / "ats-*.db")))
         if not sources:
-            print(f"No ots-*.db files found in {source_arg}")
+            print(f"No ats-*.db files found in {source_arg}")
             sys.exit(1)
         print(f"Directory mode: found {len(sources)} DB files in {source_arg}")
     else:

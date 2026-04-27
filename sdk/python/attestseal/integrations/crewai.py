@@ -1,11 +1,11 @@
-"""CrewAI tool integration for OpenTrustSeal.
+"""CrewAI tool integration for AttestSeal.
 
 Usage:
-    from opentrustseal.integrations.crewai import OpenTrustSealTool
+    from attestseal.integrations.crewai import AttestSealTool
 
     agent = Agent(
         role="Purchasing Agent",
-        tools=[OpenTrustSealTool()]
+        tools=[AttestSealTool()]
     )
 """
 
@@ -14,7 +14,7 @@ try:
 except ImportError:
     raise ImportError(
         "crewai is required for CrewAI integration. "
-        "Install with: pip install opentrustseal[crewai]"
+        "Install with: pip install attestseal[crewai]"
     )
 
 from typing import Optional
@@ -22,15 +22,15 @@ from pydantic import BaseModel, Field
 from ..client import OTSClient
 
 
-class OpenTrustSealInput(BaseModel):
-    """Input schema for the OpenTrustSeal trust verification tool."""
+class AttestSealInput(BaseModel):
+    """Input schema for the AttestSeal trust verification tool."""
     domain: str = Field(..., description="Domain to verify, e.g. 'macys.com'")
 
 
-class OpenTrustSealTool(BaseTool):
+class AttestSealTool(BaseTool):
     """Verify merchant trust before making a payment.
 
-    Checks a merchant domain against OpenTrustSeal's trust attestation
+    Checks a merchant domain against AttestSeal's trust attestation
     API, which scores sites across six signal categories (reputation,
     identity, content, domain age, SSL, DNS) using publicly observable
     data. Returns a trust score (0-100), a PROCEED/CAUTION/DENY
@@ -40,17 +40,17 @@ class OpenTrustSealTool(BaseTool):
     merchant is trustworthy.
     """
 
-    name: str = "Verify merchant trust (OpenTrustSeal)"
+    name: str = "Verify merchant trust (AttestSeal)"
     description: str = (
         "Check if a merchant website is trustworthy before making a payment. "
         "Pass a domain name (e.g. 'merchant.com') and get back a trust score "
         "(0-100), a PROCEED/CAUTION/DENY recommendation, and evidence from "
         "six signal categories. Call this tool BEFORE any payment action."
     )
-    args_schema: type[BaseModel] = OpenTrustSealInput
+    args_schema: type[BaseModel] = AttestSealInput
 
     api_key: Optional[str] = None
-    base_url: str = "https://api.opentrustseal.com"
+    base_url: str = "https://api.attestseal.com"
 
     def _run(self, domain: str) -> str:
         client = OTSClient(api_key=self.api_key, base_url=self.base_url)
@@ -98,10 +98,10 @@ class OpenTrustSealTool(BaseTool):
         # Include the signature snippet for auditability
         sig = result.signature[:32] if result.signature else ""
         if sig:
-            lines.append(f"Signed attestation: {sig}... (verify at did:web:opentrustseal.com)")
+            lines.append(f"Signed attestation: {sig}... (verify at did:web:attestseal.com)")
 
         return "\n".join(lines)
 
 
 # Backward compatibility alias
-OTSVerifyTool = OpenTrustSealTool
+OTSVerifyTool = AttestSealTool

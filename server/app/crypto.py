@@ -1,7 +1,7 @@
 """At-rest encryption for sensitive registration fields.
 
 Uses NaCl SecretBox (XSalsa20 + Poly1305 MAC). One symmetric key per
-deployment, stored at ${OTS_KEY_DIR}/registration_kek.bin with 600 perms.
+deployment, stored at ${ATS_KEY_DIR}/registration_kek.bin with 600 perms.
 Ciphertexts are stored as base64(nonce||ct) with a 1-byte version tag
 so we can rotate the KEK without breaking existing rows.
 
@@ -35,7 +35,7 @@ import nacl.utils
 import nacl.exceptions
 
 
-_KEY_DIR = Path(os.environ.get("OTS_KEY_DIR", "./keys"))
+_KEY_DIR = Path(os.environ.get("ATS_KEY_DIR", "./keys"))
 _KEK_FILE = _KEY_DIR / "registration_kek.bin"
 _PREFIX = "enc:v1:"
 

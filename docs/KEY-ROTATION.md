@@ -1,10 +1,10 @@
-# OpenTrustSeal Key Rotation Schedule
+# AttestSeal Key Rotation Schedule
 
 Version 1.0 | April 2026
 
 ## Current state
 
-OTS uses a single Ed25519 keypair for signing all trust attestation bundles. The public key is published in the DID document at `https://opentrustseal.com/.well-known/did.json` (and `https://opentrusttoken.com/.well-known/did.json` for backward compatibility). The private key is stored at `/opt/opentrustseal/keys/signing.key` on the API box.
+ATS uses a single Ed25519 keypair for signing all trust attestation bundles. The public key is published in the DID document at `https://attestseal.com/.well-known/did.json` (and `https://attestseal.com/.well-known/did.json` for backward compatibility). The private key is stored at `/opt/attestseal/keys/signing.key` on the API box.
 
 There is currently **no rotation schedule**. The same key has been in use since the first deployment (April 2026). This document specifies the rotation plan.
 
@@ -59,24 +59,24 @@ If the signing key is suspected to be compromised:
 ```json
 {
   "@context": "https://www.w3.org/ns/did/v1",
-  "id": "did:web:opentrustseal.com",
+  "id": "did:web:attestseal.com",
   "verificationMethod": [
     {
-      "id": "did:web:opentrustseal.com#signing-key-1",
+      "id": "did:web:attestseal.com#signing-key-1",
       "type": "Ed25519VerificationKey2020",
-      "controller": "did:web:opentrustseal.com",
+      "controller": "did:web:attestseal.com",
       "publicKeyMultibase": "<old-key-multibase>"
     },
     {
-      "id": "did:web:opentrustseal.com#signing-key-2",
+      "id": "did:web:attestseal.com#signing-key-2",
       "type": "Ed25519VerificationKey2020",
-      "controller": "did:web:opentrustseal.com",
+      "controller": "did:web:attestseal.com",
       "publicKeyMultibase": "<new-key-multibase>"
     }
   ],
   "assertionMethod": [
-    "did:web:opentrustseal.com#signing-key-1",
-    "did:web:opentrustseal.com#signing-key-2"
+    "did:web:attestseal.com#signing-key-1",
+    "did:web:attestseal.com#signing-key-2"
   ]
 }
 ```
@@ -86,12 +86,12 @@ During the overlap period, both keys are listed in `assertionMethod`. After cuto
 ## Attestation bundle key reference
 
 Each signed attestation bundle includes:
-- `issuer`: `"did:web:opentrustseal.com"` (the DID)
+- `issuer`: `"did:web:attestseal.com"` (the DID)
 - `signature`: the Ed25519 signature over the canonical signable payload
 
 Currently, the bundle does not include a key ID (`kid`) field. **This is a gap.** When multiple keys are active during an overlap period, verifiers need to know which key signed the bundle. The plan:
 
-- Add `signatureKeyId` field to the attestation response: `"did:web:opentrustseal.com#signing-key-1"`
+- Add `signatureKeyId` field to the attestation response: `"did:web:attestseal.com#signing-key-1"`
 - Verifiers match this against the DID document's `verificationMethod` array
 - Ship this field BEFORE the first rotation so all consumers are prepared
 

@@ -1,25 +1,25 @@
-# OpenTrustSeal
+# AttestSeal
 
 Independent trust attestation for AI agent commerce.
 
-AI agents are starting to make autonomous payments. OpenTrustSeal answers the pre-transaction question: **should this agent pay this merchant?** One API call returns a cryptographically signed evidence bundle with a trust score, six-category signal breakdown, and a PROCEED / CAUTION / DENY recommendation.
+AI agents are starting to make autonomous payments. AttestSeal answers the pre-transaction question: **should this agent pay this merchant?** One API call returns a cryptographically signed evidence bundle with a trust score, six-category signal breakdown, and a PROCEED / CAUTION / DENY recommendation.
 
-**Website:** [opentrustseal.com](https://opentrustseal.com)
-**API Docs:** [api.opentrustseal.com/docs](https://api.opentrustseal.com/docs)
-**Status:** [opentrustseal.github.io/status](https://opentrustseal.github.io/status/)
+**Website:** [attestseal.com](https://attestseal.com)
+**API Docs:** [api.attestseal.com/docs](https://api.attestseal.com/docs)
+**Status:** [attestseal.github.io/status](https://attestseal.github.io/status/)
 
 ## Quick start
 
 Check any domain:
 
 ```bash
-curl https://api.opentrustseal.com/v1/check/stripe.com
+curl https://api.attestseal.com/v1/check/stripe.com
 ```
 
 Python SDK:
 
 ```python
-from opentrustseal import check
+from attestseal import check
 
 result = check("stripe.com")
 print(result.trust_score)     # 83
@@ -34,7 +34,7 @@ Every response includes:
 - **Trust score** (0-100) computed from six signal categories
 - **Recommendation:** PROCEED (75+), CAUTION (40-74), DENY (0-39)
 - **Six signal scores:** domain age, SSL/TLS, DNS security, content analysis, reputation, identity
-- **Ed25519 signature** proving the result was issued by OpenTrustSeal
+- **Ed25519 signature** proving the result was issued by AttestSeal
 - **Actionable checklist** showing what the site can improve
 - **Jurisdiction context:** country, legal framework, cross-border risk
 - **Brand tier:** "well_known" for established top-Tranco brands, "scored" for others
@@ -45,7 +45,7 @@ Every response includes:
 Client (agent/SDK)
     |
     v
-API Server (FastAPI + uvicorn, api.opentrustseal.com)
+API Server (FastAPI + uvicorn, api.attestseal.com)
     |
     +-- Collectors (domain_age, ssl, dns, content, reputation, identity)
     |       |
@@ -57,7 +57,7 @@ API Server (FastAPI + uvicorn, api.opentrustseal.com)
     |           Tier 4: Mac Air residential Chrome via Tailscale
     |           Tier 5: Wayback Machine (Internet Archive)
     |
-    +-- Scoring (ots-v1.4-weights, brand anchor, consensus tier)
+    +-- Scoring (attestseal-v1.4-weights, brand anchor, consensus tier)
     |
     +-- Signing (Ed25519, DID document at /.well-known/did.json)
     |
@@ -92,8 +92,8 @@ server/
   merge_db.py            Merge databases (for burst-droplet seed)
 
 sdk/
-  python/                Python SDK (opentrustseal on PyPI)
-  typescript/            TypeScript SDK (@opentrustseal/sdk on npm)
+  python/                Python SDK (attestseal on PyPI)
+  typescript/            TypeScript SDK (@attestseal/sdk on npm)
 
 crawler/
   fetch_service.py       Playwright fetch service (runs on crawler boxes)
@@ -156,4 +156,4 @@ uvicorn app.main:app --reload --port 8900
 
 ## License
 
-Proprietary. All rights reserved by OpenTrustSeal, Inc.
+Proprietary. All rights reserved by AttestSeal, Inc.

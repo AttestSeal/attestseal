@@ -1,4 +1,4 @@
-# OpenTrustSeal Integration Examples
+# AttestSeal Integration Examples
 
 ## Setup
 

@@ -308,7 +308,7 @@ async def _fetch_homepage(domain: str) -> tuple[httpx.Response | None, int, bool
     # apply those challenges only to the homepage and dynamic category
     # pages; static 404 shells served by the web server layer pass
     # through cleanly and contain the site's footer template -- which
-    # is where the privacy/terms/contact links OTT scores on live. If
+    # is where the privacy/terms/contact links ATS scores on live. If
     # the site actually has a security.txt file, we get a real 200
     # response with a different positive signal. Either outcome
     # supersedes the need to escalate through tiers 2-5.

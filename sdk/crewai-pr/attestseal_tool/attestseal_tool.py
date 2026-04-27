@@ -16,16 +16,16 @@ except ImportError:
     HTTPX_AVAILABLE = False
 
 
-class OpenTrustSealInput(BaseModel):
-    """Input schema for OpenTrustSealTool."""
+class AttestSealInput(BaseModel):
+    """Input schema for AttestSealTool."""
 
     domain: str = Field(..., description="Domain to verify, e.g. 'merchant.com'")
 
 
-class OpenTrustSealTool(BaseTool):
+class AttestSealTool(BaseTool):
     """Verify a merchant domain before making a payment.
 
-    Calls the OpenTrustSeal trust attestation API, which scores sites across
+    Calls the AttestSeal trust attestation API, which scores sites across
     six signal categories using publicly observable data: reputation
     (Spamhaus, Google Safe Browsing, Tranco), identity (WHOIS, SSL cert
     org, public company status), content (privacy policy, terms, contact
@@ -45,7 +45,7 @@ class OpenTrustSealTool(BaseTool):
     rate limits on the paid tier.
     """
 
-    name: str = "OpenTrustSeal Check"
+    name: str = "AttestSeal Check"
     description: str = (
         "Check if a merchant website is trustworthy before making a payment. "
         "Pass a domain name (e.g. 'merchant.com') and get a trust score "
@@ -53,7 +53,7 @@ class OpenTrustSealTool(BaseTool):
         "and the reason for any CAUTION verdict. Call this BEFORE any "
         "payment or checkout action."
     )
-    args_schema: type[BaseModel] = OpenTrustSealInput
+    args_schema: type[BaseModel] = AttestSealInput
 
     api_key: str | None = Field(
         default_factory=lambda: os.getenv("OPENTRUSTSEAL_API_KEY"),
@@ -61,9 +61,9 @@ class OpenTrustSealTool(BaseTool):
     )
     base_url: str = Field(
         default_factory=lambda: os.getenv(
-            "OPENTRUSTSEAL_BASE_URL", "https://api.opentrustseal.com"
+            "OPENTRUSTSEAL_BASE_URL", "https://api.attestseal.com"
         ),
-        description="OpenTrustSeal API base URL. Override for self-hosted deployments.",
+        description="AttestSeal API base URL. Override for self-hosted deployments.",
     )
     timeout_s: float = Field(
         default=90.0,
@@ -79,7 +79,7 @@ class OpenTrustSealTool(BaseTool):
             ),
             EnvVar(
                 name="OPENTRUSTSEAL_BASE_URL",
-                description="Override the API base URL. Defaults to https://api.opentrustseal.com.",
+                description="Override the API base URL. Defaults to https://api.attestseal.com.",
                 required=False,
             ),
         ]
@@ -89,12 +89,12 @@ class OpenTrustSealTool(BaseTool):
         super().__init__(**kwargs)
         if not HTTPX_AVAILABLE:
             raise ImportError(
-                "The 'httpx' package is required to use OpenTrustSealTool. "
+                "The 'httpx' package is required to use AttestSealTool. "
                 "Install it with: pip install httpx"
             )
 
     def _headers(self) -> dict[str, str]:
-        headers = {"User-Agent": "crewai-opentrustseal/1.0"}
+        headers = {"User-Agent": "crewai-attestseal/1.0"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         return headers
@@ -107,7 +107,7 @@ class OpenTrustSealTool(BaseTool):
     def _action_message(self, data: dict[str, Any]) -> str:
         """Confidence-aware decision guidance.
 
-        Mirrors the action_message property in the opentrustseal-python SDK.
+        Mirrors the action_message property in the attestseal-python SDK.
         Kept inline so this tool has zero SDK dependency. If the SDK's
         canonical messages change, update this function to match.
         """
@@ -169,13 +169,13 @@ class OpenTrustSealTool(BaseTool):
         if caution_reason:
             lines.append(f"CAUTION reason: {caution_reason}")
 
-        # Action messages mirror the opentrustseal-python SDK's action_message
+        # Action messages mirror the attestseal-python SDK's action_message
         # property verbatim. Keep in sync if the SDK's strings change.
         lines.append(f"ACTION: {self._action_message(data)}")
 
         if signature:
             lines.append(
-                f"Signed: {signature[:32]}... (verify at did:web:opentrustseal.com)"
+                f"Signed: {signature[:32]}... (verify at did:web:attestseal.com)"
             )
 
         return "\n".join(lines)

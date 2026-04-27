@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from contextlib import contextmanager
 
-DB_PATH = Path(os.environ.get("OTS_DB_PATH", "./data/ots.db"))
+DB_PATH = Path(os.environ.get("ATS_DB_PATH", "./data/ots.db"))
 
 
 def init_db() -> None:
@@ -172,7 +172,7 @@ def init_db() -> None:
                     )
                     conn.execute(
                         "INSERT OR REPLACE INTO scored_results (domain, response_json, trust_score, recommendation, scoring_model, checked_at, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                        (row[0], row[1], row[2], row[3], "ots-v1-weights", row[4], row[5]),
+                        (row[0], row[1], row[2], row[3], "ats-v1-weights", row[4], row[5]),
                     )
                 conn.execute("INSERT INTO _migration_done VALUES (1)")
                 conn.execute("DROP TABLE checks")
@@ -320,7 +320,7 @@ def get_registration(domain: str) -> dict | None:
     """Load a registration row with its sensitive fields decrypted.
 
     Private fields (contact_name, contact_email, phone, address, ein_tax_id)
-    are stored encrypted with NaCl SecretBox under /opt/opentrustseal/keys/
+    are stored encrypted with NaCl SecretBox under /opt/attestseal/keys/
     registration_kek.bin. Rows predating the encryption landing are stored
     as plaintext; crypto.decrypt_field handles both shapes transparently.
     """

@@ -18,7 +18,7 @@ Provider support:
   response shape; not implemented here yet.
 
 To enable:
-  # /etc/opentrustseal/historical_whois.env (mode 640 root:ott)
+  # /etc/attestseal/historical_whois.env (mode 640 root:ott)
   HISTORICAL_WHOIS_ENABLED=true
   HISTORICAL_WHOIS_PROVIDER=whoisxmlapi
   HISTORICAL_WHOIS_API_KEY=<uuid>
@@ -51,7 +51,7 @@ def _load_env_file(path: str) -> dict:
         return {}
 
 
-_ENV = _load_env_file("/etc/opentrustseal/historical_whois.env")
+_ENV = _load_env_file("/etc/attestseal/historical_whois.env")
 HISTORICAL_WHOIS_ENABLED = _ENV.get("HISTORICAL_WHOIS_ENABLED", "false").lower() in ("1", "true", "yes", "on")
 HISTORICAL_WHOIS_PROVIDER = _ENV.get("HISTORICAL_WHOIS_PROVIDER", "").lower().strip()
 HISTORICAL_WHOIS_API_KEY = _ENV.get("HISTORICAL_WHOIS_API_KEY", "").strip()

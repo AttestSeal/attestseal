@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the Phase 2 completion-pass domain list from seed DBs.
 
-Scans all ots-*.db files in a directory (or a single merged DB) and
+Scans all ats-*.db files in a directory (or a single merged DB) and
 extracts domains that need a second pass because their signals are
 incomplete. Writes a domain-per-line file suitable for crawl_seed.py.
 
@@ -121,7 +121,7 @@ def main():
 
     # Find DBs
     if Path(source).is_dir():
-        dbs = sorted(glob.glob(str(Path(source) / "ots-*.db")))
+        dbs = sorted(glob.glob(str(Path(source) / "ats-*.db")))
         # Also check for ots.db
         main_db = Path(source) / "ots.db"
         if main_db.exists():

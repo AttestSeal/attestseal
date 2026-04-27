@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Optional
 
 _DATA_FILE = Path(os.environ.get(
-    "OTS_PARENT_COMPANIES_FILE",
+    "ATS_PARENT_COMPANIES_FILE",
     Path(__file__).resolve().parent.parent / "data" / "parent_companies.json"
 ))
 

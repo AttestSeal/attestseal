@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenTrustSeal -- Internal Knowledge Base</title>
+<title>AttestSeal -- Internal Knowledge Base</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -268,7 +268,7 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <header class="hero">
 <div class="container">
 <div class="badge">Internal Knowledge Base v0.1</div>
-<h1>OpenTrustSeal</h1>
+<h1>AttestSeal</h1>
 <p class="subtitle">Everything your team needs to understand the protocol, the architecture, and the business model. Written for humans, not engineers.</p>
 </div>
 </header>
@@ -296,7 +296,7 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <p class="section-label">Start Here</p>
 <h2>The Big Picture</h2>
 <p>AI agents are learning to buy things on behalf of humans. Stripe, Coinbase, and Skyfire are building the payment plumbing (how agents pay). Nobody has built the trust layer (should agents pay this particular site?).</p>
-<p style="margin-top:1rem">OpenTrustSeal fills that gap. One API call. Under 200 milliseconds. The agent gets a signed, verifiable answer: this site is safe, proceed with caution, or do not transact.</p>
+<p style="margin-top:1rem">AttestSeal fills that gap. One API call. Under 200 milliseconds. The agent gets a signed, verifiable answer: this site is safe, proceed with caution, or do not transact.</p>
 
 <div class="card-grid" style="margin-top:2rem">
 <div class="card">
@@ -323,7 +323,7 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <div class="container">
 <p class="section-label">Foundation</p>
 <h2>Key Concepts Explained</h2>
-<p>These are the technical building blocks behind OpenTrustSeal. You do not need to become an engineer, but understanding these concepts will let you speak confidently about the product.</p>
+<p>These are the technical building blocks behind AttestSeal. You do not need to become an engineer, but understanding these concepts will let you speak confidently about the product.</p>
 
 <div class="accordion" role="list">
 
@@ -367,8 +367,8 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <p>Cryptographic signing is how you prove a document has not been tampered with and was created by who it claims to be from.</p>
 <p>Imagine you write a letter, seal it with a unique wax stamp that only you own, and mail it. The recipient can see the unbroken seal and know: (1) this letter really came from you, and (2) nobody opened or changed it in transit. Digital signatures do the same thing with mathematics.</p>
 <p><strong>Ed25519</strong> is a specific signing algorithm. There are many algorithms to choose from (RSA, ECDSA, Ed25519, etc.). Ed25519 is the modern choice because it is fast (signing takes microseconds), the signatures are small (64 bytes), the keys are small, and it has no known vulnerabilities. It was designed by Daniel Bernstein, one of the most respected cryptographers alive.</p>
-<p><strong>How it works in OTT:</strong> We have a private key (secret, locked in a hardware vault) and a public key (published openly). When we score a website, we sign the trust token with our private key. Anyone with our public key can verify the signature is authentic. If even a single character of the token were changed after signing, the verification would fail.</p>
-<p><strong>Why it matters for marketing:</strong> "Cryptographically signed trust tokens" means nobody can forge a trust score. Not the site owner, not a middleman, not even a hacker who intercepts the token. Only OpenTrustSeal can produce valid tokens, and everyone can verify them. This is the core trust guarantee of the entire product.</p>
+<p><strong>How it works in ATS:</strong> We have a private key (secret, locked in a hardware vault) and a public key (published openly). When we score a website, we sign the trust token with our private key. Anyone with our public key can verify the signature is authentic. If even a single character of the token were changed after signing, the verification would fail.</p>
+<p><strong>Why it matters for marketing:</strong> "Cryptographically signed trust tokens" means nobody can forge a trust score. Not the site owner, not a middleman, not even a hacker who intercepts the token. Only AttestSeal can produce valid tokens, and everyone can verify them. This is the core trust guarantee of the entire product.</p>
 </div>
 </div>
 </div>
@@ -382,7 +382,7 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <div class="accordion-panel-inner">
 <p><strong>DID</strong> stands for Decentralized Identifier. It is a W3C standard for creating digital identities that do not depend on any single authority.</p>
 <p>Think of it this way: your email address (you at a provider) depends on that provider. If the provider disappears, your identity disappears. A DID is like an email address that you own permanently, independent of any company.</p>
-<p>Our DID is <code style="font-family:var(--font-mono);color:var(--purple);font-size:0.9em">did:web:opentrustseal.com</code>. This is our digital identity. Attached to this identity is our public signing key. When an agent receives a trust token signed by us, it checks our DID to find our public key and verify the signature.</p>
+<p>Our DID is <code style="font-family:var(--font-mono);color:var(--purple);font-size:0.9em">did:web:attestseal.com</code>. This is our digital identity. Attached to this identity is our public signing key. When an agent receives a trust token signed by us, it checks our DID to find our public key and verify the signature.</p>
 <p><strong>Key management</strong> is the practice of securely storing, rotating, and publishing cryptographic keys. Our private keys live in an <strong>HSM</strong> (Hardware Security Module), which is a physical device designed so that keys can never be extracted from it, even if someone physically steals the device.</p>
 <p><strong>Why it matters for marketing:</strong> DID-based key management means agents worldwide can verify our tokens without any prior relationship with us. They look up our DID, find our public key, and verify. No API calls, no accounts, no contracts needed for basic verification. This is what makes the protocol truly open.</p>
 </div>
@@ -510,9 +510,9 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <div class="flow">
 <div class="flow-step">Agent wants to pay merchant.com</div>
 <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-<div class="flow-step">Agent calls OTT API</div>
+<div class="flow-step">Agent calls ATS API</div>
 <span class="flow-arrow" aria-hidden="true">&rarr;</span>
-<div class="flow-step highlight">OTT returns score + recommendation</div>
+<div class="flow-step highlight">ATS returns score + recommendation</div>
 <span class="flow-arrow" aria-hidden="true">&rarr;</span>
 <div class="flow-step">Agent decides: proceed, pause, or refuse</div>
 </div>
@@ -551,7 +551,7 @@ max-height:0;overflow:hidden;transition:max-height var(--timing-slow) ease;
 <h4>Why the Signature Matters</h4>
 <div class="analogy">
 <strong>Without signatures:</strong> A scam site could create a fake trust token claiming a score of 99. Agents would have no way to know it was forged. It would be like anyone being able to print their own driver's license.<br><br>
-<strong>With signatures:</strong> Only OpenTrustSeal can produce valid tokens. A scam site can put any file at /.well-known/ots.json, but the agent will check the cryptographic signature and immediately reject it. It is mathematically impossible to forge.
+<strong>With signatures:</strong> Only AttestSeal can produce valid tokens. A scam site can put any file at /.well-known/ots.json, but the agent will check the cryptographic signature and immediately reject it. It is mathematically impossible to forge.
 </div>
 </div>
 </div>
@@ -700,7 +700,7 @@ That is a 12-point difference between "agents will ask users for confirmation be
 </div>
 
 <h3 style="margin-top:2rem">Revenue Stream 3: Transaction Insurance</h3>
-<p>Enterprise-tier sites get transaction insurance: if an agent transacts with a verified site and gets defrauded, OTT covers up to $50,000. We charge $0.10 per verified transaction and partner with an insurance underwriter. This stream only activates at scale (100K+ insured transactions/month).</p>
+<p>Enterprise-tier sites get transaction insurance: if an agent transacts with a verified site and gets defrauded, ATS covers up to $50,000. We charge $0.10 per verified transaction and partner with an insurance underwriter. This stream only activates at scale (100K+ insured transactions/month).</p>
 
 <h3 style="margin-top:2rem">Year 1 Revenue Projection</h3>
 <div class="card" style="background:var(--navy);border-color:var(--gold);border-width:2px">
@@ -856,7 +856,7 @@ That is a 12-point difference between "agents will ask users for confirmation be
 <div class="edu-box" style="margin-top:2rem">
 <h4>The Neutrality Advantage</h4>
 <p>A trust authority must be neutral to be credible. Stripe cannot build a trust layer because they would be judging which merchants agents should pay, and they process the payments. That is a conflict of interest. Same problem for Coinbase and Google.</p>
-<p style="margin-top:0.75rem">The analogy: SSL certificates come from independent certificate authorities (DigiCert, Let's Encrypt), not from Chrome or Safari. Browsers trust CAs because CAs have no stake in which sites you visit. OTT is the CA model applied to agent payments.</p>
+<p style="margin-top:0.75rem">The analogy: SSL certificates come from independent certificate authorities (DigiCert, Let's Encrypt), not from Chrome or Safari. Browsers trust CAs because CAs have no stake in which sites you visit. ATS is the CA model applied to agent payments.</p>
 <p style="margin-top:0.75rem"><strong>The one-liner for your pitch deck:</strong></p>
 <p style="margin-top:0.5rem;font-size:1.1rem;color:var(--cream);font-weight:500">"Every agent payment company is building the rails. We built the road signs."</p>
 </div>
@@ -903,7 +903,7 @@ That is a 12-point difference between "agents will ask users for confirmation be
 
 <footer>
 <div class="container">
-<div class="mark">OpenTrustSeal</div>
+<div class="mark">AttestSeal</div>
 <p>Internal Knowledge Base. Draft v0.1 -- 2026-04-10</p>
 </div>
 </footer>

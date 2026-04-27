@@ -1,4 +1,4 @@
-# OpenTrustSeal Protocol Specification
+# AttestSeal Protocol Specification
 
 **Version:** 0.2.0-draft
 **Status:** Draft
@@ -10,14 +10,14 @@
 
 ## 1. Abstract
 
-OpenTrustSeal (OTT) is an open protocol that enables AI agents to verify the
+AttestSeal (ATS) is an open protocol that enables AI agents to verify the
 trustworthiness of a website before initiating financial transactions. The
 protocol provides cryptographically signed evidence bundles containing
 observable trust signals (domain age, SSL, DNS, reputation, content, identity
 status) alongside a computed trust score that summarizes the evidence into a
 single actionable number.
 
-Agents query the OTT API (or read a static token from a well-known URI) and
+Agents query the ATS API (or read a static token from a well-known URI) and
 receive both the raw evidence and a scored recommendation (PROCEED, CAUTION,
 or DENY) in under 200ms.
 
@@ -58,7 +58,7 @@ Current gaps:
 | Term | Definition |
 |------|------------|
 | **Trust Token** | A signed JSON document asserting a site's trust score and verification status |
-| **Site Owner** | The entity that controls a domain and opts into OTT verification |
+| **Site Owner** | The entity that controls a domain and opts into ATS verification |
 | **Verification Authority (VA)** | The service that performs verification checks and signs trust tokens |
 | **Querying Agent** | An AI agent that reads trust tokens before making transaction decisions |
 | **Trust Score** | A numerical value (0--100) representing assessed trustworthiness |
@@ -108,7 +108,7 @@ The token is self-contained and cryptographically signed. The agent verifies
 the signature against the VA's published public key. No API call needed.
 
 **Path B: API Verification**
-Agent queries the VA's API: `GET https://api.opentrustseal.com/v1/check/{domain}`.
+Agent queries the VA's API: `GET https://api.attestseal.com/v1/check/{domain}`.
 The VA returns the latest trust assessment. This path supports bulk queries,
 real-time scoring, and enriched metadata not available in the static token.
 
@@ -141,12 +141,12 @@ inspect, challenge, or override the score based on the underlying data.
 {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://opentrustseal.com/ns/v1"
+    "https://attestseal.com/ns/v1"
   ],
-  "type": ["VerifiableCredential", "OpenTrustSeal"],
+  "type": ["VerifiableCredential", "AttestSeal"],
   "issuer": {
-    "id": "did:web:opentrustseal.com",
-    "name": "OpenTrustSeal Verification Authority"
+    "id": "did:web:attestseal.com",
+    "name": "AttestSeal Verification Authority"
   },
   "issuanceDate": "2026-04-10T00:00:00Z",
   "expirationDate": "2026-04-17T00:00:00Z",
@@ -197,14 +197,14 @@ inspect, challenge, or override the score based on the underlying data.
     },
     "flags": [],
     "trustScore": 82,
-    "scoringModel": "ots-v1-weights",
+    "scoringModel": "ats-v1-weights",
     "recommendation": "PROCEED",
     "agentGuidance": "Strong technical signals, clean reputation. No identity verification on file. Suitable for transactions under $500 without additional checks."
   },
   "proof": {
     "type": "Ed25519Signature2020",
     "created": "2026-04-10T00:00:00Z",
-    "verificationMethod": "did:web:opentrustseal.com#signing-key-1",
+    "verificationMethod": "did:web:attestseal.com#signing-key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z3FXQjecWNiPg...base58-encoded-signature"
   }
@@ -227,7 +227,7 @@ changes and scoring model improvements over time.
 | `signals` | object | Yes | Observable evidence: raw facts and per-signal scores |
 | `flags` | array[string] | Yes | Active warnings (empty array if none) |
 | `trustScore` | integer (0--100) | Yes | Computed summary of all signals (see Section 7) |
-| `scoringModel` | string | Yes | Identifies the scoring weight version (e.g. `ots-v1-weights`) |
+| `scoringModel` | string | Yes | Identifies the scoring weight version (e.g. `ats-v1-weights`) |
 | `recommendation` | enum | Yes | One of: `PROCEED`, `CAUTION`, `DENY` |
 | `agentGuidance` | string | Yes | Natural language guidance for agent decision-making |
 
@@ -302,17 +302,17 @@ against, but the evidence is always available for agents that want to make
 their own assessment.
 
 The scoring model is **versioned and continuously improvable**. Weights are
-identified by model version (e.g. `ots-v1-weights`). As real-world fraud
+identified by model version (e.g. `ats-v1-weights`). As real-world fraud
 correlation data accumulates, weights will be refined. Old model versions
 remain documented so consumers can understand score changes across versions.
 
 When the model changes:
 - The `scoringModel` field in the token updates to the new version
-- A changelog is published at `opentrustseal.com/scoring/changelog`
+- A changelog is published at `attestseal.com/scoring/changelog`
 - Existing tokens are re-scored on next refresh cycle
 - Score changes of 10+ points trigger the `SCORE_DECLINING` or equivalent flag
 
-### 7.1 Signal Categories and Weights (Model: ots-v1-weights)
+### 7.1 Signal Categories and Weights (Model: ats-v1-weights)
 
 The composite trust score is a weighted average of six signal categories:
 
@@ -378,7 +378,7 @@ using one of two methods:
 Add a TXT record to the domain's DNS:
 
 ```
-_ott-verify.example.com  TXT  "ott-verify=abc123-verification-code"
+_ats-verify.example.com  TXT  "ats-verify=abc123-verification-code"
 ```
 
 The VA checks for this record. Once verified, the record can be removed.
@@ -388,12 +388,12 @@ The VA checks for this record. Once verified, the record can be removed.
 Place a verification file at:
 
 ```
-https://example.com/.well-known/ott-verify.txt
+https://example.com/.well-known/ats-verify.txt
 ```
 
 Contents:
 ```
-ott-verify=abc123-verification-code
+ats-verify=abc123-verification-code
 ```
 
 The VA fetches this file over HTTPS. Once verified, the file can be removed.
@@ -405,21 +405,21 @@ The VA fetches this file over HTTPS. Once verified, the file can be removed.
 The VA maintains Ed25519 signing keys. The public key is published at:
 
 ```
-https://opentrustseal.com/.well-known/did.json
+https://attestseal.com/.well-known/did.json
 ```
 
 In DID Document format:
 ```json
 {
   "@context": "https://www.w3.org/ns/did/v1",
-  "id": "did:web:opentrustseal.com",
+  "id": "did:web:attestseal.com",
   "verificationMethod": [{
-    "id": "did:web:opentrustseal.com#signing-key-1",
+    "id": "did:web:attestseal.com#signing-key-1",
     "type": "Ed25519VerificationKey2020",
-    "controller": "did:web:opentrustseal.com",
+    "controller": "did:web:attestseal.com",
     "publicKeyMultibase": "z6Mkf5rGMoatrSj1f...base58-encoded-public-key"
   }],
-  "assertionMethod": ["did:web:opentrustseal.com#signing-key-1"]
+  "assertionMethod": ["did:web:attestseal.com#signing-key-1"]
 }
 ```
 
@@ -433,7 +433,7 @@ In DID Document format:
 
 ### 9.3 Signature Verification (Agent Side)
 
-1. Fetch the VA's public key from `did:web:opentrustseal.com`
+1. Fetch the VA's public key from `did:web:attestseal.com`
 2. Extract `credentialSubject` from the token
 3. Canonicalize with JCS
 4. Hash with SHA-256
@@ -448,7 +448,7 @@ remain listed (with `revoked` date) for 90 days to allow token expiration.
 Key rotation events are logged to an append-only transparency log at:
 
 ```
-https://opentrustseal.com/.well-known/ott-keylog.json
+https://attestseal.com/.well-known/ats-keylog.json
 ```
 
 ## 10. API Specification
@@ -457,7 +457,7 @@ https://opentrustseal.com/.well-known/ott-keylog.json
 
 ```
 GET /v1/check/{domain}
-Host: api.opentrustseal.com
+Host: api.attestseal.com
 Authorization: Bearer {api_key}
 Accept: application/json
 ```
@@ -514,11 +514,11 @@ recommendation. This is the lightweight API format; the full W3C VC format
   },
   "flags": [],
   "trustScore": 82,
-  "scoringModel": "ots-v1-weights",
+  "scoringModel": "ats-v1-weights",
   "recommendation": "PROCEED",
   "reasoning": "Strong technical signals, clean reputation. No identity verification on file. Suitable for transactions under $500.",
   "signature": "z3FXQjecWNiPg...base58-encoded-ed25519-signature",
-  "issuer": "did:web:opentrustseal.com"
+  "issuer": "did:web:attestseal.com"
 }
 ```
 
@@ -548,7 +548,7 @@ an initial check:
 
 ```
 POST /v1/check/request
-Host: api.opentrustseal.com
+Host: api.attestseal.com
 Authorization: Bearer {api_key}
 Content-Type: application/json
 
@@ -593,9 +593,9 @@ Sites can reference their trust status in `llms.txt`:
 
 ```
 # Trust Verification
-This site is checked by OpenTrustSeal.
+This site is checked by AttestSeal.
 Trust Score: 82/100
-Check: https://api.opentrustseal.com/v1/check/example.com
+Check: https://api.attestseal.com/v1/check/example.com
 ```
 
 This gives agents a secondary discovery path through the llms.txt
@@ -644,7 +644,7 @@ The v1 SDK targets Python because the dominant agent frameworks (LangGraph,
 CrewAI, AutoGen) are Python-based.
 
 ```python
-from opentrustseal import check
+from attestseal import check
 
 # Quick check with recommendation
 result = check("merchant.com")
@@ -658,13 +658,13 @@ print(result.signals.identity.verified)     # False
 
 # Access the computed score
 print(result.trust_score)                   # 82
-print(result.scoring_model)                 # "ots-v1-weights"
+print(result.scoring_model)                 # "ats-v1-weights"
 ```
 
 #### LangChain / LangGraph Tool
 
 ```python
-from opentrustseal.langchain import OTTVerifyTool
+from attestseal.langchain import OTTVerifyTool
 
 # Add to any LangChain agent as a tool
 tools = [OTTVerifyTool()]
@@ -674,7 +674,7 @@ agent = create_react_agent(llm, tools)
 #### CrewAI Tool
 
 ```python
-from opentrustseal.crewai import OTTVerifyTool
+from attestseal.crewai import OTTVerifyTool
 
 # Add to any CrewAI agent
 agent = Agent(
@@ -685,12 +685,12 @@ agent = Agent(
 
 ### 12.2 For Payment Rails (Future)
 
-Payment protocols can integrate OTT as a pre-transaction check:
+Payment protocols can integrate ATS as a pre-transaction check:
 
 ```
 Agent wants to pay merchant.com
-  -> Agent calls OTT: GET /v1/check/merchant.com
-  -> OTT returns: evidence + score=82 + recommendation=PROCEED
+  -> Agent calls ATS: GET /v1/check/merchant.com
+  -> ATS returns: evidence + score=82 + recommendation=PROCEED
   -> Agent proceeds with x402/Stripe MPP/Skyfire payment
 ```
 
@@ -700,7 +700,7 @@ v1 API adoption validates demand.
 
 ### 12.3 JavaScript SDK (Future)
 
-A Node.js SDK (`@opentrustseal/sdk`) will follow the Python SDK once agent
+A Node.js SDK (`@attestseal/sdk`) will follow the Python SDK once agent
 framework adoption is established. The API is identical across languages.
 
 ## 13. Security Considerations
@@ -719,7 +719,7 @@ framework adoption is established. The API is identical across languages.
 
 ### 13.2 Privacy
 
-- OTT does not track which agents query which domains (at the free tier)
+- ATS does not track which agents query which domains (at the free tier)
 - API queries are logged for rate limiting only; logs are purged after 30 days
 - When KYC tiers launch: KYC data stored encrypted at rest (AES-256), processed by verified humans only
 - PII from verification is never included in the public trust token
@@ -736,9 +736,9 @@ framework adoption is established. The API is identical across languages.
 
 ### 14.1 Protocol Governance
 
-The OTT protocol specification is open and versioned. Changes go through:
+The ATS protocol specification is open and versioned. Changes go through:
 
-1. RFC published to opentrustseal.com/rfcs/
+1. RFC published to attestseal.com/rfcs/
 2. 30-day public comment period
 3. Review by advisory board
 4. Ratification and version bump
@@ -749,14 +749,14 @@ The protocol supports multiple Verification Authorities. The `issuer` field
 in the trust token identifies which VA signed it. Agents can maintain a list
 of trusted VAs, similar to how browsers maintain trusted certificate authorities.
 
-In v1, OpenTrustSeal operates as the sole VA. The multi-VA framework is
+In v1, AttestSeal operates as the sole VA. The multi-VA framework is
 specified now so the architecture does not need to change when competitors
 or regional VAs emerge.
 
 ## 15. Versioning
 
 The protocol uses semantic versioning. The version is embedded in:
-- The `@context` URL: `https://opentrustseal.com/ns/v1`
+- The `@context` URL: `https://attestseal.com/ns/v1`
 - The API path: `/v1/check/`
 - The token itself (implicit via context)
 
@@ -782,7 +782,7 @@ See Section 6.2 for the full token structure.
 
 ## Appendix C: Comparison with Existing Standards (April 2026)
 
-| Feature | OTT | Visa Trusted Agent | Mastercard Verifiable Intent | Skyfire KYAPay | Google Safe Browsing |
+| Feature | ATS | Visa Trusted Agent | Mastercard Verifiable Intent | Skyfire KYAPay | Google Safe Browsing |
 |---------|-----|-------------------|------------------------------|----------------|---------------------|
 | Pre-transaction check | Yes | Yes | No (post-tx) | Yes | No |
 | Evidence bundle | Yes | No | Yes | Partial | No |

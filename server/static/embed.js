@@ -1,11 +1,11 @@
 /**
- * OpenTrustSeal Embed Script v0.3
+ * AttestSeal Embed Script v0.3
  *
  * Usage:
- *   <script src="https://api.opentrustseal.com/embed.js" data-domain="yoursite.com"></script>
+ *   <script src="https://api.attestseal.com/embed.js" data-domain="yoursite.com"></script>
  *
  * What this script does:
- *   1. Fetches the latest signed trust token from the OTT API
+ *   1. Fetches the latest signed trust token from the ATS API
  *   2. Injects <meta> tags so agents can discover trust data
  *   3. Injects a <link> tag pointing to the token endpoint
  *   No visual output. No cookies. No tracking.
@@ -13,7 +13,7 @@
 (function() {
   'use strict';
 
-  var API = 'https://api.opentrustseal.com';
+  var API = 'https://api.attestseal.com';
   var script = document.currentScript;
   if (!script) return;
 
@@ -21,7 +21,7 @@
   if (!domain) return;
 
   var link = document.createElement('link');
-  link.rel = 'ott-trust-token';
+  link.rel = 'ats-trust-token';
   link.href = API + '/v1/token/' + encodeURIComponent(domain) + '/ott.json';
   link.type = 'application/json';
   document.head.appendChild(link);

@@ -1,4 +1,4 @@
-"""Trust token response model matching the OTS protocol spec v0.2."""
+"""Trust token response model matching the ATS protocol spec v0.2."""
 
 import uuid
 from datetime import datetime
@@ -38,7 +38,7 @@ class CheckResponse(BaseModel):
     signals: SignalBundle
     flags: list[str] = Field(default_factory=list)
     trust_score: int = Field(alias="trustScore")
-    scoring_model: str = Field(default="ots-v1.2-weights", alias="scoringModel")
+    scoring_model: str = Field(default="attestseal-v1.2-weights", alias="scoringModel")
     site_category: str = Field(default="consumer", alias="siteCategory")
     jurisdiction: dict = Field(default_factory=dict)
     recommendation: str  # PROCEED, CAUTION, DENY
@@ -65,10 +65,10 @@ class CheckResponse(BaseModel):
     checklist_summary: ChecklistSummary = Field(alias="checklistSummary")
     signature: str
     signature_key_id: str = Field(
-        default="did:web:opentrustseal.com#signing-key-1",
+        default="did:web:attestseal.com#signing-key-1",
         alias="signatureKeyId",
     )
-    issuer: str = "did:web:opentrustseal.com"
+    issuer: str = "did:web:attestseal.com"
 
     model_config = {"populate_by_name": True}
 
