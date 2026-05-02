@@ -173,7 +173,7 @@ def test_package_dependencies_declared():
 def test_env_vars_declared_as_non_required():
     tool = AttestSealTool()
     names = [ev.name for ev in tool.env_vars]
-    assert "OPENTRUSTSEAL_API_KEY" in names
-    assert "OPENTRUSTSEAL_BASE_URL" in names
+    assert "ATTESTSEAL_API_KEY" in names
+    assert "ATTESTSEAL_BASE_URL" in names
     for ev in tool.env_vars:
         assert ev.required is False

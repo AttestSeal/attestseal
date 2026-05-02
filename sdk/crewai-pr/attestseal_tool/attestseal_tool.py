@@ -41,7 +41,7 @@ class AttestSealTool(BaseTool):
     trusts the score.
 
     The free tier requires no API key (60 requests per minute per IP,
-    10,000 checks per month). Set OPENTRUSTSEAL_API_KEY for higher
+    10,000 checks per month). Set ATTESTSEAL_API_KEY for higher
     rate limits on the paid tier.
     """
 
@@ -56,12 +56,12 @@ class AttestSealTool(BaseTool):
     args_schema: type[BaseModel] = AttestSealInput
 
     api_key: str | None = Field(
-        default_factory=lambda: os.getenv("OPENTRUSTSEAL_API_KEY"),
+        default_factory=lambda: os.getenv("ATTESTSEAL_API_KEY"),
         description="Optional API key for higher rate limits. Free tier works without one.",
     )
     base_url: str = Field(
         default_factory=lambda: os.getenv(
-            "OPENTRUSTSEAL_BASE_URL", "https://api.attestseal.com"
+            "ATTESTSEAL_BASE_URL", "https://api.attestseal.com"
         ),
         description="AttestSeal API base URL. Override for self-hosted deployments.",
     )
@@ -73,12 +73,12 @@ class AttestSealTool(BaseTool):
     env_vars: list[EnvVar] = Field(
         default_factory=lambda: [
             EnvVar(
-                name="OPENTRUSTSEAL_API_KEY",
+                name="ATTESTSEAL_API_KEY",
                 description="Optional API key for higher rate limits. Free tier works without one.",
                 required=False,
             ),
             EnvVar(
-                name="OPENTRUSTSEAL_BASE_URL",
+                name="ATTESTSEAL_BASE_URL",
                 description="Override the API base URL. Defaults to https://api.attestseal.com.",
                 required=False,
             ),

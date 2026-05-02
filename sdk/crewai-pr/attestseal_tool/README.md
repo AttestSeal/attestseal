@@ -104,8 +104,8 @@ Every response is Ed25519-signed. The signing key is published at https://attest
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
-| `OPENTRUSTSEAL_API_KEY` | No | unset | Optional key for higher rate limits on the paid tier |
-| `OPENTRUSTSEAL_BASE_URL` | No | https://api.attestseal.com | Override for self-hosted deployments |
+| `ATTESTSEAL_API_KEY` | No | unset | Optional key for higher rate limits on the paid tier |
+| `ATTESTSEAL_BASE_URL` | No | https://api.attestseal.com | Override for self-hosted deployments |
 
 ## Async support
 
