@@ -1,19 +1,17 @@
 # AttestSeal x402 demo (demo.attestseal.com)
-# Stage 1 (initial): HTTP only on port 80 with ACME challenge support so
-# certbot can issue a Let's Encrypt cert. Once the cert exists, the
-# https-block (commented out below) is enabled and HTTP redirects to it.
+# Stage 2 (post-certbot): HTTPS with HTTP -> HTTPS redirect.
+# Cloudflare-proxied; SSL mode Full (strict) so the origin cert MUST
+# cover demo.attestseal.com. Let's Encrypt issued the cert via webroot
+# ACME challenge using the port-80 location below.
 
 server {
-    listen 80;
+    listen 443 ssl http2;
     server_name demo.attestseal.com;
+    ssl_certificate /etc/letsencrypt/live/demo.attestseal.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/demo.attestseal.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    # ACME challenge for certbot --webroot
-    location /.well-known/acme-challenge/ {
-        root /var/www/html;
-    }
-
-    # Initial: serve the demo over HTTP. After cert issuance, this block
-    # becomes the redirect-to-https location.
     location / {
         proxy_pass http://127.0.0.1:8901;
         proxy_set_header Host $host;
@@ -24,23 +22,16 @@ server {
     }
 }
 
-# Stage 2 (post-certbot): uncomment after running certbot, then reload nginx.
-# After uncommenting, swap the location / above to a 301 redirect.
-#
-# server {
-#     listen 443 ssl http2;
-#     server_name demo.attestseal.com;
-#     ssl_certificate /etc/letsencrypt/live/demo.attestseal.com/fullchain.pem;
-#     ssl_certificate_key /etc/letsencrypt/live/demo.attestseal.com/privkey.pem;
-#     include /etc/letsencrypt/options-ssl-nginx.conf;
-#     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-#
-#     location / {
-#         proxy_pass http://127.0.0.1:8901;
-#         proxy_set_header Host $host;
-#         proxy_set_header X-Real-IP $remote_addr;
-#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-#         proxy_set_header X-Forwarded-Proto $scheme;
-#         proxy_read_timeout 30s;
-#     }
-# }
+# Port 80: handle ACME renewals; redirect everything else to HTTPS.
+server {
+    listen 80;
+    server_name demo.attestseal.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
