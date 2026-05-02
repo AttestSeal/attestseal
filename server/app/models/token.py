@@ -61,6 +61,32 @@ class CheckResponse(BaseModel):
     # Consumers who want to filter anchored vs heuristic-only scores can
     # read this field directly rather than re-deriving from flags.
     brand_tier: str = Field(default="scored", alias="brandTier")
+    # v1.5.1: assuranceBasis names what kind of trust the recommendation is
+    # built on. Values: well_known_tranco_anchor / earned_proceed /
+    # registered_proceed / kyc_verified / tenant_platform_earned /
+    # infrastructure_earned / api_service_earned / tracking /
+    # not_recommended. Cryptographically signed.
+    assurance_basis: Optional[str] = Field(default=None, alias="assuranceBasis")
+    # v1.5.1: parent_companies registry parent name (Vercel, Cloudflare,
+    # Amazon, ...) when the domain matches a registry suffix; null otherwise.
+    # Helps agents reason about platform context without cross-referencing.
+    parent_company: Optional[str] = Field(default=None, alias="parentCompany")
+    # v1.5.1: cryptographic confirmation that no parent-rank inheritance
+    # applied. Always False today (subdomain_inherits=False everywhere in
+    # the registry); the field exists so agents can rely on its absence
+    # to mean "this domain earned its score independently."
+    parent_floor_inherited: bool = Field(default=False, alias="parentFloorInherited")
+    # v1.5.1: explicit policy hint for agents that prefer not to derive
+    # policy from the basis. Values: proceed_normal / proceed_earned /
+    # proceed_registered / proceed_kyc_verified /
+    # proceed_with_platform_context / proceed_with_infrastructure_context /
+    # proceed_with_api_context / do_not_pay_tracking / do_not_pay.
+    agent_policy_hint: Optional[str] = Field(default=None, alias="agentPolicyHint")
+    # v1.5.1: per-source reputation coverage so agents can distinguish
+    # "checked clean" from "not checked." Each entry is
+    # {"checked": bool, "matched": bool [, "rank": int]}.
+    # Cryptographically signed.
+    reputation_sources: Optional[dict] = Field(default=None, alias="reputationSources")
     checklist: list[ChecklistItem] = Field(default_factory=list)
     checklist_summary: ChecklistSummary = Field(alias="checklistSummary")
     signature: str

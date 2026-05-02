@@ -323,6 +323,7 @@ async def _run_check_inner(domain: str) -> CheckResponse:
             "spamListed": reputation_result.spam_listed,
             "trancoRank": getattr(reputation_result, '_tranco_rank', None),
             "blocklists": getattr(reputation_result, '_blocklist_detail', {}),
+            "safeBrowsingChecked": bool(getattr(reputation_result, '_safe_browsing_checked', False)),
         },
         "identity": {
             "whoisDisclosed": identity_result.whois_disclosed,
@@ -365,14 +366,30 @@ async def _run_check_inner(domain: str) -> CheckResponse:
         except ValueError:
             pass
 
-    # Well-known brand anchor: compositional evidence of trust for aged
-    # top-Tranco domains with clean reputation. Applied as an identity
-    # floor and final-score floor inside compute_score.
-    well_known = scoring.is_well_known_brand(signals, domain_age_days)
+    # v1.5 brand anchor: compositional evidence of trust for aged top-Tranco
+    # domains with clean reputation. Applied as an identity floor and
+    # per-bucket final-score floor inside compute_score.
+    #
+    # v1.5.1: parent_match now carries a per-entry policy that can suppress
+    # the anchor entirely. Apex tenant platforms (vercel.app, doubleclick.net,
+    # myshopify.com, ...) all ship with apex_floor=False so the anchor never
+    # fires on them even when their own Tranco rank would otherwise qualify.
+    # Subdomain inheritance is similarly gated by subdomain_inherits and is
+    # currently False everywhere in the registry.
+    parent_rank = None
+    if parent_match:
+        from .collectors import tranco as _tranco_mod
+        parent_rank = _tranco_mod.get_rank(parent_match.parent)
+
+    well_known, brand_floor_rank = scoring.determine_brand_anchor(
+        signals, domain_age_days, parent_rank=parent_rank,
+        parent_match=parent_match,
+    )
 
     # v1.4 consensus tier: top-100 Tranco + 10-year domain age raises
     # the identity ceiling from 55 to 75, spreading top brands above
-    # the 75 anchor floor into the 80-90 range.
+    # the 75 anchor floor into the 80-90 range. Not propagated through
+    # parent inheritance -- a CDN subdomain is not amazon.com.
     consensus = scoring.is_consensus_tier(signals, domain_age_days)
 
     # Compute score and recommendation
@@ -382,6 +399,7 @@ async def _run_check_inner(domain: str) -> CheckResponse:
         content_scorable=not content_unscorable,
         well_known_brand=well_known,
         consensus_tier=consensus,
+        brand_floor_rank=brand_floor_rank,
     )
 
     # Monitoring alerts from signal analysis
@@ -404,17 +422,82 @@ async def _run_check_inner(domain: str) -> CheckResponse:
         # CONTENT_UNSCORABLE themselves.
         if well_known:
             flags.append("ANCHOR_ONLY")
-    recommendation = scoring.compute_recommendation(trust_score, flags)
+
+    # site_category resolution order:
+    #   1. Registry override (tenant_platform/infrastructure/tracking) wins
+    #      so vercel.app surfaces as tenant_platform regardless of content.
+    #   2. Well-known brand anchor (top-50K Tranco + aged + clean rep + valid
+    #      SSL) is itself strong evidence of a consumer brand, even when
+    #      content_check's heuristic mis-tags the body as infrastructure-
+    #      shaped because the homepage fetch was sparse or blocked.
+    #      adidas.com, fly.io, muji.com etc. land here.
+    #   3. Otherwise honor the content heuristic.
+    if parent_match is not None and parent_match.site_category in (
+        "tenant_platform", "infrastructure", "tracking"
+    ):
+        site_category = parent_match.site_category
+    elif well_known:
+        site_category = "consumer"
+    else:
+        site_category = getattr(content_result, '_site_category', 'consumer')
+
+    # v1.5.1 recommendation override is gated on parent_match (registry)
+    # ONLY, not the heuristic site_category. content_check's heuristic
+    # over-tags consumer brands whose homepage fetch failed (facebook.com,
+    # github.com, pinterest.com) as "infrastructure"; the registry is the
+    # authoritative source of "this is not a payment endpoint."
+    recommendation = scoring.compute_recommendation(
+        trust_score, flags,
+        parent_match=parent_match,
+        is_registered=registered,
+        kyc_tier="none",
+    )
 
     confidence = scoring.compute_confidence(
         signals, content_scorable=not content_unscorable,
         domain_age_days=domain_age_days,
     )
+
+    # site_category was already resolved above so the recommendation
+    # override could see it. Re-using the same variable here.
     caution_reason = scoring.compute_caution_reason(
         signals, trust_score, domain_age_days,
         content_scorable=not content_unscorable,
         confidence=confidence,
-        site_category=getattr(content_result, '_site_category', 'consumer'),
+        site_category=site_category,
+        recommendation=recommendation,
+    )
+
+    # v1.5.1: assuranceBasis tells agents what kind of trust the recommendation
+    # is built on. The "_earned" suffix on tenant/infra/api_service variants
+    # tells agents the score did NOT come from inheritance.
+    assurance_basis = scoring.compute_assurance_basis(
+        recommendation,
+        well_known_brand=well_known,
+        is_registered=registered,
+        kyc_tier="none",  # KYC integration is post-launch; pipeline does not yet read it
+        parent_match=parent_match,
+        site_category=site_category,
+    )
+
+    # v1.5.1: agentPolicyHint is a more explicit "what to do" string for
+    # agents that prefer not to derive policy from the basis themselves.
+    agent_hint = scoring.agent_policy_hint(assurance_basis)
+
+    # v1.5.1: parentCompany surfaces the registry parent_name; None when
+    # the domain isn't in the registry. parentFloorInherited is always
+    # False today -- cryptographic confirmation that no parent-rank
+    # inheritance applied to this score.
+    parent_company_name = parent_match.parent_name if parent_match is not None else None
+    parent_floor_inherited = False  # subdomain_inherits=False registry-wide
+
+    # v1.5.1: per-source reputation coverage so agents can distinguish
+    # "checked clean" from "not checked." Bound into the signed payload.
+    sb_checked = bool(getattr(reputation_result, '_safe_browsing_checked', None))
+    reputation_sources = scoring.build_reputation_sources(
+        signals.reputation,
+        getattr(reputation_result, '_blocklist_detail', None),
+        sb_checked,
     )
 
     reasoning = scoring.generate_reasoning(
@@ -439,6 +522,12 @@ async def _run_check_inner(domain: str) -> CheckResponse:
         "recommendation": recommendation,
         "confidence": confidence,
         "cautionReason": caution_reason,
+        "assuranceBasis": assurance_basis,
+        "agentPolicyHint": agent_hint,
+        "siteCategory": site_category,
+        "parentCompany": parent_company_name,
+        "parentFloorInherited": parent_floor_inherited,
+        "reputationSources": reputation_sources,
     }
 
     signature = signing.sign_payload(signable)
@@ -456,7 +545,9 @@ async def _run_check_inner(domain: str) -> CheckResponse:
         },
     )
 
-    site_category = getattr(content_result, '_site_category', 'consumer')
+    # Note: site_category was already resolved above (registry-driven if a
+    # parent_match exists, else content's heuristic detection). The line
+    # below intentionally does NOT overwrite it.
 
     # Jurisdiction detection
     # Extract country from WHOIS if available
@@ -493,6 +584,11 @@ async def _run_check_inner(domain: str) -> CheckResponse:
         recommendation=recommendation,
         confidence=confidence,
         cautionReason=caution_reason,
+        assuranceBasis=assurance_basis,
+        parentCompany=parent_company_name,
+        parentFloorInherited=parent_floor_inherited,
+        agentPolicyHint=agent_hint,
+        reputationSources=reputation_sources,
         reasoning=reasoning,
         crawlability="blocked" if content_unscorable else "ok",
         brandTier="well_known" if well_known else "scored",

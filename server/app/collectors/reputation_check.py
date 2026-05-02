@@ -140,6 +140,7 @@ async def collect(domain: str) -> ReputationSignal:
     # Run Safe Browsing and blocklist checks
     sb_result = await _check_safe_browsing(domain)
     bl_result = _check_blocklists(domain)
+    sb_checked = bool(sb_result.get("checked", False))
 
     # Critical: any malware/phishing detection = score 0
     malware = sb_result.get("malware", False)
@@ -155,6 +156,7 @@ async def collect(domain: str) -> ReputationSignal:
         )
         result._tranco_rank = tranco.get_rank(domain)
         result._blocklist_detail = bl_result
+        result._safe_browsing_checked = sb_checked
         return result
 
     if spam_listed:
@@ -166,6 +168,7 @@ async def collect(domain: str) -> ReputationSignal:
         )
         result._tranco_rank = tranco.get_rank(domain)
         result._blocklist_detail = bl_result
+        result._safe_browsing_checked = sb_checked
         return result
 
     # Use Tranco ranking as primary reputation signal
@@ -174,7 +177,7 @@ async def collect(domain: str) -> ReputationSignal:
 
     if tranco_score >= 0:
         score = tranco_score
-    elif sb_result.get("checked"):
+    elif sb_checked:
         # Clean on Safe Browsing, not in Tranco
         score = 80
     else:
@@ -189,4 +192,5 @@ async def collect(domain: str) -> ReputationSignal:
     )
     result._tranco_rank = rank
     result._blocklist_detail = bl_result
+    result._safe_browsing_checked = sb_checked
     return result

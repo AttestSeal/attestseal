@@ -39,11 +39,24 @@ class ParentCompanyMatch:
     parent is the canonical domain of the parent company (e.g. "amazon.com"
     for cloudfront.net). Downstream code reads the parent's OWN scored row
     from scored_results to inherit identity evidence.
+
+    v1.5.1 added the policy fields (apex_floor, subdomain_inherits,
+    site_category). Defaults for entries that pre-date v1.5.1 stay
+    permissive/legacy (apex_floor=True, subdomain_inherits=True) so that
+    older registry files continue to behave the way they did, but the
+    shipped registry sets all three fields explicitly.
+
+    is_apex is True when the scored domain equals the matched suffix,
+    False when the scored domain is a strict subdomain of the suffix.
     """
     parent: str
     parent_name: str
     category: str
     matched_suffix: str
+    site_category: str = "infrastructure"
+    apex_floor: bool = True
+    subdomain_inherits: bool = True
+    is_apex: bool = False
 
 
 def _load() -> None:
@@ -68,6 +81,12 @@ def lookup(domain: str) -> Optional[ParentCompanyMatch]:
     A domain matches a registry entry if the domain equals the suffix OR
     ends with "." + suffix. "foo.cloudfront.net" matches suffix
     "cloudfront.net". "cloudfront.net" itself also matches.
+
+    The returned match carries the v1.5.1 policy fields (apex_floor,
+    subdomain_inherits, site_category) and an is_apex flag set when the
+    queried domain equals the suffix exactly. Entries that omit the new
+    fields fall back to permissive defaults so that legacy registry files
+    keep their previous behavior.
     """
     if not _LOADED:
         _load()
@@ -77,11 +96,16 @@ def lookup(domain: str) -> Optional[ParentCompanyMatch]:
     for entry in _ENTRIES:
         suffix = entry["suffix"].lower()
         if d == suffix or d.endswith("." + suffix):
+            is_apex = (d == suffix)
             return ParentCompanyMatch(
                 parent=entry["parent"],
                 parent_name=entry["parent_name"],
                 category=entry["category"],
                 matched_suffix=suffix,
+                site_category=entry.get("site_category", "infrastructure"),
+                apex_floor=bool(entry.get("apex_floor", True)),
+                subdomain_inherits=bool(entry.get("subdomain_inherits", True)),
+                is_apex=is_apex,
             )
     return None
 
@@ -94,6 +118,25 @@ def is_infrastructure_category(category: str) -> bool:
         "cdn", "cloud_compute", "serverless", "hosting", "object_storage",
         "dns", "api_gateway", "tracking", "email"
     }
+
+
+def policy_blocks_brand_anchor(match: Optional["ParentCompanyMatch"]) -> bool:
+    """True if the registry policy on this match blocks the brand-anchor floor.
+
+    Used by the scoring engine: when a registered apex (vercel.app,
+    doubleclick.net, ...) appears with apex_floor=False, we want
+    is_well_known_brand to return False even though the domain itself
+    qualifies on Tranco-rank/age/SSL/reputation. Same call applies for
+    subdomains under suffixes whose subdomain_inherits=False -- when the
+    caller is computing inheritance, this signal also says "no".
+    """
+    if match is None:
+        return False
+    if match.is_apex and not match.apex_floor:
+        return True
+    if (not match.is_apex) and not match.subdomain_inherits:
+        return True
+    return False
 
 
 def reset_cache() -> None:
