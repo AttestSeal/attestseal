@@ -1,0 +1,28 @@
+# Cloudflare Worker template for stamping X-AttestSeal-* headers on 402
+# responses from your origin.
+#
+# Customize the [vars] section below, then `wrangler deploy`.
+
+name = "attestseal-x402-stamper"
+main = "src/index.ts"
+compatibility_date = "2026-04-01"
+
+# Replace these with your own values.
+[vars]
+# The merchant domain this Worker is stamping for. MUST match the host of
+# the URL the Worker is fronting.
+ATTESTSEAL_DOMAIN = "merchant.example"
+# AttestSeal API base. Override only for staging environments.
+ATTESTSEAL_API_BASE = "https://api.attestseal.com"
+# Stamp on these status codes. Default: 402 only.
+ATTESTSEAL_ONLY_ON_STATUS = "402"
+
+# Edge cache for the per-domain attestation. The Worker honors the
+# attestation's expiresAt up to this max (default: 24 hours).
+ATTESTSEAL_CACHE_TTL_SECONDS = "86400"
+
+# OPTIONAL: route this Worker in front of your origin. Common patterns:
+# - put the Worker on the same hostname as your API and let it stamp
+# - put the Worker on a routes pattern like merchant.example/paid/*
+# Configure routes via the Cloudflare dashboard or here:
+# routes = [{ pattern = "merchant.example/paid/*", zone_name = "merchant.example" }]

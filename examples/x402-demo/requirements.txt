@@ -1,0 +1,3 @@
+attestseal-x402[fastapi]>=0.1.0
+fastapi>=0.110
+uvicorn[standard]>=0.27
