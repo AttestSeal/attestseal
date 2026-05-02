@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Read an AttestSeal Attestation -- AttestSeal</title>
+<meta name="description" content="Every AttestSeal response is a signed JSON document. This post walks through every field, what it means, and how to verify the signature in the language of your choice.">
+<meta property="og:title" content="How to Read an AttestSeal Attestation">
+<meta property="og:description" content="Every AttestSeal response is a signed JSON document. This post walks through every field, what it means, and how to verify the signature in the language of your choice.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="/assets/brand/ats-logo-full.png">
+<link rel="icon" type="image/png" href="/assets/brand/ats-logo-icon.png">
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+:root{
+  --ink:#07121f;
+  --ink-2:#10243a;
+  --ink-3:#193957;
+  --ink-4:#2a4768;
+  --paper:#ffffff;
+  --paper-2:#f6f9fc;
+  --paper-3:#eef5fb;
+  --text:#142033;
+  --text-soft:#3a4a63;
+  --line:#d8e1ec;
+  --line-2:#c0cfdf;
+  --accent:#2563eb;
+  --accent-soft:#dbeafe;
+  --code-bg:#f4f7fb;
+  --font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--paper);font-size:18px;line-height:1.65}
+body{margin:0;font-family:var(--font);color:var(--text);background:var(--paper);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color 144ms ease}
+a:hover,a:focus{border-bottom-color:var(--accent)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip-link{position:absolute;top:-120px;left:20px;z-index:2000;background:var(--ink);color:#fff;padding:12px 16px;border-radius:0 0 8px 8px;font-weight:700;text-decoration:none}
+.skip-link:focus{top:0}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);padding:14px 24px}
+.nav-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav a{color:var(--ink);font-weight:600;border:0}
+.nav a:hover{color:var(--accent)}
+.brand{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:720}
+.brand img{width:28px;height:28px}
+.nav ul{display:flex;list-style:none;margin:0;padding:0;gap:24px;font-size:.95rem}
+main{max-width:760px;margin:0 auto;padding:64px 24px 96px}
+.article-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:14px}
+h1{font-size:2.6rem;font-weight:760;color:var(--ink);line-height:1.15;margin:0 0 18px}
+h2{font-size:1.65rem;font-weight:720;color:var(--ink);line-height:1.25;margin:48px 0 18px}
+h3{font-size:1.2rem;font-weight:680;color:var(--ink);line-height:1.3;margin:36px 0 14px}
+h4{font-size:1.05rem;font-weight:680;color:var(--ink);margin:28px 0 12px}
+p{margin:0 0 1.1em;color:var(--text)}
+.summary{font-size:1.18rem;color:var(--text-soft);line-height:1.55;margin:0 0 16px}
+.byline{font-size:.95rem;color:var(--text-soft);display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.byline .tag{display:inline-block;background:var(--paper-3);color:var(--ink-3);padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600}
+.article p,.article ul,.article ol{font-size:1.05rem}
+.article ul,.article ol{margin:0 0 1.2em;padding-left:1.4em}
+.article li{margin-bottom:.4em}
+.article strong{color:var(--ink)}
+.article em{color:var(--ink-3)}
+.article hr{border:0;border-top:1px solid var(--line);margin:48px 0}
+.article blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:24px 0;color:var(--text-soft);background:var(--paper-2);border-radius:0 6px 6px 0}
+.article code{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--ink-2)}
+.article pre{font-family:var(--mono);background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:18px 20px;overflow-x:auto;font-size:.92rem;line-height:1.55;margin:24px 0}
+.article pre code{background:transparent;padding:0;border-radius:0;color:var(--text)}
+.article table{border-collapse:collapse;width:100%;margin:24px 0;font-size:.95rem}
+.article th,.article td{border:1px solid var(--line);padding:10px 14px;text-align:left;vertical-align:top}
+.article th{background:var(--paper-2);font-weight:680;color:var(--ink)}
+.article tr:nth-child(even) td{background:var(--paper-2)}
+footer{max-width:1080px;margin:0 auto;padding:48px 24px;border-top:1px solid var(--line);font-size:.92rem;color:var(--text-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px}
+footer a{color:var(--text-soft)}
+.hub-list{list-style:none;padding:0;margin:0;display:grid;gap:20px}
+.hub-card{display:block;padding:24px;border:1px solid var(--line);border-radius:12px;background:var(--paper);transition:border-color 144ms ease,transform 144ms ease,box-shadow 144ms ease;color:inherit;border-bottom:1px solid var(--line)}
+.hub-card:hover{border-color:var(--ink-3);transform:translateY(-2px);box-shadow:0 12px 32px rgba(7,18,31,.08)}
+.hub-card .num{font-size:.85rem;font-weight:600;color:var(--ink-3);letter-spacing:.05em}
+.hub-card h3{margin:6px 0 10px;font-size:1.25rem}
+.hub-card .summary{font-size:1rem;color:var(--text-soft);margin:0}
+@media (max-width:680px){
+  html{font-size:17px}
+  h1{font-size:2.05rem}
+  h2{font-size:1.4rem}
+  main{padding:40px 18px 64px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media (prefers-contrast:high){
+  body{background:#fff;color:#000}
+  .article code{background:#fff;border:1px solid #000}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="brand"><img src="/assets/brand/ats-logo-icon.png" alt="" aria-hidden="true">AttestSeal</a>
+    <ul>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/#how-it-works">How it works</a></li>
+      <li><a href="https://github.com/AttestSeal/attestseal">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+<main id="main">
+  <article class="article">
+    <header class="article-header">
+      <div class="eyebrow">AttestSeal Blog</div>
+      <h1>How to Read an AttestSeal Attestation</h1>
+      <p class="summary">Every AttestSeal response is a signed JSON document. This post walks through every field, what it means, and how to verify the signature in the language of your choice.</p>
+      <div class="byline">
+        <span>Allen Lu</span>
+        <span>&middot;</span>
+        <time datetime="2026-05-02">2026-05-02</time>
+        <span class="tag">developer</span> <span class="tag">technical</span> <span class="tag">attestation</span> <span class="tag">signature</span>
+      </div>
+    </header>
+    <h1 id="how-to-read-an-attestseal-attestation">How to Read an AttestSeal Attestation</h1>
+<p>If you are integrating AttestSeal into an agent, an x402-aware server, or any system that needs to make a payment decision based on trust, the unit of trust you are working with is the <em>attestation</em>: a signed JSON document with a known schema, a known signer, and a known verification procedure.</p>
+<p>This post is a field-by-field walkthrough. We&rsquo;ll take a real response, explain what each field is for, and then show how to verify the signature in Python, TypeScript, and from a shell script.</p>
+<h2 id="a-complete-attestation">A complete attestation</h2>
+<p>Here is the actual response you would get from <code>GET https://api.attestseal.com/v1/check/amazon.com</code> today, abridged for readability:</p>
+<pre><code class="language-json">{
+  &quot;domain&quot;: &quot;amazon.com&quot;,
+  &quot;checkedAt&quot;: &quot;2026-05-02T14:00:00Z&quot;,
+  &quot;expiresAt&quot;: &quot;2026-05-09T14:00:00Z&quot;,
+  &quot;trustScore&quot;: 90,
+  &quot;scoringModel&quot;: &quot;attestseal-v1.5.1-weights&quot;,
+  &quot;recommendation&quot;: &quot;PROCEED&quot;,
+  &quot;confidence&quot;: &quot;high&quot;,
+  &quot;cautionReason&quot;: null,
+  &quot;assuranceBasis&quot;: &quot;well_known_tranco_anchor&quot;,
+  &quot;agentPolicyHint&quot;: &quot;proceed_normal&quot;,
+  &quot;siteCategory&quot;: &quot;consumer&quot;,
+  &quot;parentCompany&quot;: null,
+  &quot;parentFloorInherited&quot;: false,
+  &quot;brandTier&quot;: &quot;well_known&quot;,
+  &quot;crawlability&quot;: &quot;ok&quot;,
+  &quot;flags&quot;: [&quot;WELL_KNOWN_BRAND&quot;, &quot;CONTENT_UNSCORABLE&quot;, &quot;ANCHOR_ONLY&quot;],
+  &quot;signals&quot;: {
+    &quot;domainAge&quot;: { &quot;registeredDate&quot;: &quot;1994-11-01&quot;, &quot;band&quot;: &quot;5+ years&quot;, &quot;score&quot;: 100 },
+    &quot;ssl&quot;:       { &quot;valid&quot;: true, &quot;tlsVersion&quot;: &quot;TLSv1.3&quot;, &quot;hsts&quot;: true, &quot;score&quot;: 100 },
+    &quot;dns&quot;:       { &quot;spf&quot;: true, &quot;dmarc&quot;: true, &quot;dnssec&quot;: false, &quot;caa&quot;: false, &quot;score&quot;: 60 },
+    &quot;content&quot;:   { &quot;privacyPolicy&quot;: false, &quot;termsOfService&quot;: false, &quot;contactInfo&quot;: false, &quot;score&quot;: 0 },
+    &quot;reputation&quot;:{ &quot;malware&quot;: false, &quot;phishing&quot;: false, &quot;spamListed&quot;: false, &quot;score&quot;: 96 },
+    &quot;identity&quot;:  { &quot;verified&quot;: false, &quot;verificationTier&quot;: &quot;automated&quot;, &quot;score&quot;: 40 }
+  },
+  &quot;reputationSources&quot;: {
+    &quot;tranco&quot;: { &quot;checked&quot;: true, &quot;rank&quot;: 24, &quot;matched&quot;: false },
+    &quot;spamhaus_dbl&quot;: { &quot;checked&quot;: true, &quot;matched&quot;: false },
+    &quot;surbl&quot;: { &quot;checked&quot;: true, &quot;matched&quot;: false },
+    &quot;urlhaus&quot;: { &quot;checked&quot;: true, &quot;matched&quot;: false },
+    &quot;google_safe_browsing&quot;: { &quot;checked&quot;: true, &quot;matched&quot;: false }
+  },
+  &quot;jurisdiction&quot;: {
+    &quot;country&quot;: &quot;US&quot;,
+    &quot;legalFramework&quot;: &quot;us_consumer_protection&quot;,
+    &quot;crossBorderRisk&quot;: &quot;low&quot;,
+    &quot;disputeResolution&quot;: &quot;available&quot;,
+    &quot;kycAvailable&quot;: true
+  },
+  &quot;checklist&quot;: [
+    { &quot;category&quot;: &quot;Email Security&quot;, &quot;item&quot;: &quot;DNSSEC&quot;, &quot;status&quot;: &quot;fail&quot;, &quot;fix&quot;: &quot;Enable DNSSEC at your registrar.&quot; },
+    { &quot;category&quot;: &quot;Email Security&quot;, &quot;item&quot;: &quot;CAA record&quot;, &quot;status&quot;: &quot;fail&quot;, &quot;fix&quot;: &quot;Add a CAA record at your DNS provider.&quot; }
+  ],
+  &quot;checklistSummary&quot;: { &quot;total&quot;: 14, &quot;passing&quot;: 12, &quot;failing&quot;: 2, &quot;improvable&quot;: 0 },
+  &quot;signature&quot;: &quot;M4OqKvuOiuv8...EfAg==&quot;,
+  &quot;signatureKeyId&quot;: &quot;did:web:attestseal.com#signing-key-1&quot;,
+  &quot;issuer&quot;: &quot;did:web:attestseal.com&quot;
+}
+</code></pre>
+<p>That&rsquo;s a lot of fields. They fall into five families. Let&rsquo;s go through them.</p>
+<h2 id="family-1-identity">Family 1: identity</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>domain</code></td>
+<td>The host this attestation is about. The signature covers this; an attacker cannot move an attestation between domains.</td>
+</tr>
+<tr>
+<td><code>issuer</code></td>
+<td>The DID that signed this attestation. Today there&rsquo;s exactly one: <code>did:web:attestseal.com</code>.</td>
+</tr>
+<tr>
+<td><code>signatureKeyId</code></td>
+<td>The DID URL of the specific verification key used. The DID document at <code>attestseal.com/.well-known/did.json</code> lists every valid key.</td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>Multibase-encoded Ed25519 signature over the canonical signable form (more on this in §&rdquo;How to verify&rdquo;).</td>
+</tr>
+<tr>
+<td><code>checkedAt</code> / <code>expiresAt</code></td>
+<td>When the attestation was minted and when it goes stale. Default validity is 7 days.</td>
+</tr>
+</tbody>
+</table>
+<p>Two things to know about this family. First, the signature covers exactly the fields you need to make a decision (<code>domain</code>, <code>recommendation</code>, <code>trustScore</code>, <code>assuranceBasis</code>, etc.) — <em>not</em> the entire response. Decorative fields like <code>checklist</code> are not signed and may differ between cached and fresh responses. The fields that are signed are listed below in &ldquo;Canonical signable form.&rdquo;</p>
+<p>Second, the verification key is referenced by ID, not embedded. This is how key rotation works: when AttestSeal rotates the signing key, the old key remains in the DID document with a <code>revoked</code> timestamp, so attestations issued before the rotation continue to verify until they expire. Clients with a cached DID document might briefly fail verification during a rotation; the protocol&rsquo;s fallback rule is &ldquo;fall back to a fresh API call&rdquo; in that case.</p>
+<h2 id="family-2-the-recommendation-surface">Family 2: the recommendation surface</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trustScore</code></td>
+<td>An integer 0-100 summarizing the weighted signal evidence. Useful for histograms and dashboards; agents should not threshold on the raw number.</td>
+</tr>
+<tr>
+<td><code>recommendation</code></td>
+<td><code>PROCEED</code>, <code>CAUTION</code>, or <code>DENY</code>. The agent-actionable verdict.</td>
+</tr>
+<tr>
+<td><code>confidence</code></td>
+<td><code>high</code>, <code>medium</code>, or <code>low</code>. How complete the evidence is. A high-confidence CAUTION means the signals are weak; a low-confidence CAUTION means we couldn&rsquo;t gather enough signals.</td>
+</tr>
+<tr>
+<td><code>cautionReason</code></td>
+<td>Only set when <code>recommendation == "CAUTION"</code>. Values: <code>weak_signals</code>, <code>incomplete_evidence</code>, <code>new_domain</code>, <code>infrastructure</code>, <code>tenant_platform</code>, <code>tracking</code>. Tells the agent <em>why</em>.</td>
+</tr>
+<tr>
+<td><code>assuranceBasis</code></td>
+<td>The basis on which the recommendation rests. Critical for transaction-limit policy. See <a href="public-legitimacy-vs-merchant-trust.md">Public Legitimacy Is Not Merchant Trust</a>.</td>
+</tr>
+<tr>
+<td><code>agentPolicyHint</code></td>
+<td>An explicit &ldquo;what to do&rdquo; string for agents that don&rsquo;t want to derive policy from the basis. E.g., <code>proceed_normal</code>, <code>proceed_with_platform_context</code>, <code>do_not_pay_tracking</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>The right way to use these together is: <strong>recommendation gates the action; assuranceBasis sets the limit; cautionReason explains the friction.</strong> A high-confidence PROCEED with <code>well_known_tranco_anchor</code> lets the agent send up to a few dollars without prompting the user. A medium-confidence CAUTION with <code>cautionReason=incomplete_evidence</code> is the agent saying &ldquo;I tried to verify this but the merchant blocked my crawler; ask the user whether to proceed anyway.&rdquo; A DENY with <code>MALWARE_DETECTED</code> in flags should never reach the user as a question.</p>
+<h2 id="family-3-the-registry-layer">Family 3: the registry layer</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>siteCategory</code></td>
+<td><code>consumer</code>, <code>tenant_platform</code>, <code>infrastructure</code>, <code>tracking</code>, or <code>api_service</code>. The shape of the domain.</td>
+</tr>
+<tr>
+<td><code>parentCompany</code></td>
+<td>Human-readable parent name when the domain matches our <code>parent_companies</code> registry. <code>null</code> for ordinary consumer domains.</td>
+</tr>
+<tr>
+<td><code>parentFloorInherited</code></td>
+<td><code>false</code> everywhere today. Cryptographic confirmation that no parent-rank inheritance applied to this score; the domain earned its trust on own signals.</td>
+</tr>
+<tr>
+<td><code>brandTier</code></td>
+<td><code>"well_known"</code> or <code>"scored"</code>. Set to <code>well_known</code> when the brand-anchor floor lifted the score.</td>
+</tr>
+<tr>
+<td><code>crawlability</code></td>
+<td><code>"ok"</code> or <code>"blocked"</code>. <code>blocked</code> means our crawler couldn&rsquo;t fetch the homepage; the score was computed on the remaining five signals and the <code>CONTENT_UNSCORABLE</code> flag was raised.</td>
+</tr>
+</tbody>
+</table>
+<p>The registry layer matters because it tells the agent the <em>shape</em> of the domain. A PROCEED for <code>vercel.app</code> and a PROCEED for <code>amazon.com</code> are both PROCEEDs, but the <code>siteCategory</code> field tells the agent that one of them is a tenant platform (where the actual merchant might be a tenant <code>alice-store.vercel.app</code>) and the other is a consumer brand. That&rsquo;s policy-relevant context the agent should not have to re-derive.</p>
+<p><code>parentFloorInherited=false</code> is a deliberately boring field. Today it is always <code>false</code>. We expose it so that if a future version of the spec ever introduces parent-rank inheritance for first-party subdomains, agents can rely on the <em>absence</em> of <code>false</code> to mean &ldquo;this score got a lift from somewhere I should look at.&rdquo; Until then, the field is a guarantee.</p>
+<h2 id="family-4-the-signal-evidence">Family 4: the signal evidence</h2>
+<p>The <code>signals</code> object contains the raw evidence, broken down by collector:</p>
+<pre><code class="language-json">&quot;signals&quot;: {
+  &quot;domainAge&quot;:  { &quot;registeredDate&quot;: &quot;1994-11-01&quot;, &quot;band&quot;: &quot;5+ years&quot;, &quot;score&quot;: 100 },
+  &quot;ssl&quot;:        { &quot;valid&quot;: true, &quot;tlsVersion&quot;: &quot;TLSv1.3&quot;, &quot;hsts&quot;: true, &quot;score&quot;: 100 },
+  &quot;dns&quot;:        { &quot;spf&quot;: true, &quot;dmarc&quot;: true, &quot;dnssec&quot;: false, &quot;caa&quot;: false, &quot;score&quot;: 60 },
+  &quot;content&quot;:    { &quot;privacyPolicy&quot;: false, &quot;termsOfService&quot;: false, &quot;contactInfo&quot;: false, &quot;score&quot;: 0 },
+  &quot;reputation&quot;: { &quot;malware&quot;: false, &quot;phishing&quot;: false, &quot;spamListed&quot;: false, &quot;score&quot;: 96 },
+  &quot;identity&quot;:   { &quot;verified&quot;: false, &quot;verificationTier&quot;: &quot;automated&quot;, &quot;score&quot;: 40 }
+}
+</code></pre>
+<p>Each signal has a <code>score</code> (0-100) and one or more evidence fields specific to the collector. The composite trust score is a weighted sum:</p>
+<pre><code>trustScore = 0.30 * reputation.score
+           + 0.25 * identity.score
+           + 0.17 * content.score
+           + 0.10 * domainAge.score
+           + 0.10 * ssl.score
+           + 0.08 * dns.score
+</code></pre>
+<p>Plus the brand-anchor floor and PROCEED-threshold-with-safety-gate logic on top. (Full details in the <a href="../../spec/SCORING-V1.4.md">scoring spec</a>, to be updated for v1.5.1.)</p>
+<p>The point of exposing the signals is auditability. An agent that disagrees with our score can look at the signals and see <em>which</em> one we disagreed about. A merchant who wants to improve their score can look at the signals and see <em>exactly</em> what to fix. We don&rsquo;t ship &ldquo;the score is what it is, trust us&rdquo; responses; we ship the receipts.</p>
+<h2 id="family-5-meta-and-operations">Family 5: meta and operations</h2>
+<p>The remaining fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scoringModel</code></td>
+<td>The versioned model identifier (<code>attestseal-v1.5.1-weights</code>). When we change the model, this string changes too, and old attestations remain valid under their original model.</td>
+</tr>
+<tr>
+<td><code>flags</code></td>
+<td>Boolean signals that aren&rsquo;t worth their own field: <code>WELL_KNOWN_BRAND</code>, <code>CONTENT_UNSCORABLE</code>, <code>NO_SSL</code>, <code>NEW_DOMAIN</code>, <code>MALWARE_DETECTED</code>, etc.</td>
+</tr>
+<tr>
+<td><code>reputationSources</code></td>
+<td>Per-source check state: which blocklists were queried, what they returned. Distinguishes &ldquo;checked clean&rdquo; from &ldquo;didn&rsquo;t check.&rdquo;</td>
+</tr>
+<tr>
+<td><code>jurisdiction</code></td>
+<td>Country / legal framework / cross-border risk / dispute-resolution availability for the domain. Useful for agents that have policies tied to merchant jurisdiction.</td>
+</tr>
+<tr>
+<td><code>checklist</code></td>
+<td>Actionable fix items for the merchant. Mostly relevant to the merchant dashboard; agents can ignore it.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="how-to-verify">How to verify</h2>
+<p>The signature covers a canonical signable form derived from the response. Here&rsquo;s the procedure in Python:</p>
+<pre><code class="language-python">import json, hashlib, base64
+import nacl.signing, nacl.encoding, httpx
+
+def fetch_did_doc(issuer_did=&quot;did:web:attestseal.com&quot;):
+    # did:web:attestseal.com -&gt; https://attestseal.com/.well-known/did.json
+    host = issuer_did.removeprefix(&quot;did:web:&quot;)
+    return httpx.get(f&quot;https://{host}/.well-known/did.json&quot;).json()
+
+def public_key_from_did(did_doc, key_id):
+    for vm in did_doc.get(&quot;verificationMethod&quot;, []):
+        if vm[&quot;id&quot;] == key_id:
+            mb = vm[&quot;publicKeyMultibase&quot;]   # 'M' + base64pad
+            assert mb[0] == &quot;M&quot;
+            return nacl.signing.VerifyKey(base64.b64decode(mb[1:]))
+    raise ValueError(f&quot;key {key_id} not found in DID document&quot;)
+
+def verify(response):
+    signable = {
+        &quot;domain&quot;:         response[&quot;domain&quot;],
+        &quot;signals&quot;:        response[&quot;signals&quot;],
+        &quot;flags&quot;:          response[&quot;flags&quot;],
+        &quot;trustScore&quot;:     response[&quot;trustScore&quot;],
+        &quot;scoringModel&quot;:   response[&quot;scoringModel&quot;],
+        &quot;recommendation&quot;: response[&quot;recommendation&quot;],
+        &quot;confidence&quot;:     response.get(&quot;confidence&quot;),
+        &quot;cautionReason&quot;:  response.get(&quot;cautionReason&quot;),
+        &quot;assuranceBasis&quot;: response.get(&quot;assuranceBasis&quot;),
+        &quot;agentPolicyHint&quot;:response.get(&quot;agentPolicyHint&quot;),
+        &quot;siteCategory&quot;:   response.get(&quot;siteCategory&quot;),
+        &quot;parentCompany&quot;:  response.get(&quot;parentCompany&quot;),
+        &quot;parentFloorInherited&quot;: response.get(&quot;parentFloorInherited&quot;, False),
+        &quot;reputationSources&quot;:    response.get(&quot;reputationSources&quot;),
+    }
+    canonical = json.dumps(signable, sort_keys=True, separators=(&quot;,&quot;, &quot;:&quot;)).encode(&quot;utf-8&quot;)
+    digest = hashlib.sha256(canonical).digest()
+
+    sig_mb = response[&quot;signature&quot;]
+    assert sig_mb[0] in (&quot;M&quot;, &quot;z&quot;)  # 'z' is legacy
+    sig_bytes = base64.b64decode(sig_mb[1:])
+
+    did_doc = fetch_did_doc(response[&quot;issuer&quot;])  # cache this for 24h in production
+    pubkey = public_key_from_did(did_doc, response[&quot;signatureKeyId&quot;])
+
+    try:
+        pubkey.verify(digest, sig_bytes)
+        return True
+    except nacl.exceptions.BadSignatureError:
+        return False
+</code></pre>
+<p>In TypeScript:</p>
+<pre><code class="language-typescript">import { webcrypto } from 'crypto';
+import nacl from 'tweetnacl';
+
+async function fetchDidDoc(issuerDid: string) {
+  const host = issuerDid.replace(/^did:web:/, '');
+  return (await fetch(`https://${host}/.well-known/did.json`)).json();
+}
+
+function publicKeyFromDid(didDoc: any, keyId: string): Uint8Array {
+  const vm = didDoc.verificationMethod.find((v: any) =&gt; v.id === keyId);
+  if (!vm) throw new Error(`key ${keyId} not found`);
+  const mb = vm.publicKeyMultibase;
+  if (mb[0] !== 'M') throw new Error('expected M-prefix multibase');
+  return Uint8Array.from(Buffer.from(mb.slice(1), 'base64'));
+}
+
+async function verify(response: any): Promise&lt;boolean&gt; {
+  const signable = {
+    domain: response.domain,
+    signals: response.signals,
+    flags: response.flags,
+    trustScore: response.trustScore,
+    scoringModel: response.scoringModel,
+    recommendation: response.recommendation,
+    confidence: response.confidence ?? null,
+    cautionReason: response.cautionReason ?? null,
+    assuranceBasis: response.assuranceBasis ?? null,
+    agentPolicyHint: response.agentPolicyHint ?? null,
+    siteCategory: response.siteCategory ?? null,
+    parentCompany: response.parentCompany ?? null,
+    parentFloorInherited: response.parentFloorInherited ?? false,
+    reputationSources: response.reputationSources ?? null,
+  };
+  const canonical = JSON.stringify(signable, Object.keys(signable).sort());
+  const digest = new Uint8Array(
+    await webcrypto.subtle.digest('SHA-256', new TextEncoder().encode(canonical))
+  );
+
+  const sigMb = response.signature;
+  if (sigMb[0] !== 'M' &amp;&amp; sigMb[0] !== 'z') return false;
+  const sig = Uint8Array.from(Buffer.from(sigMb.slice(1), 'base64'));
+
+  const didDoc = await fetchDidDoc(response.issuer);
+  const pubkey = publicKeyFromDid(didDoc, response.signatureKeyId);
+
+  return nacl.sign.detached.verify(digest, sig, pubkey);
+}
+</code></pre>
+<p>From the shell, using <code>jq</code> and <code>openssl</code>:</p>
+<pre><code class="language-bash">RESP=$(curl -s https://api.attestseal.com/v1/check/amazon.com)
+DID=$(curl -s https://attestseal.com/.well-known/did.json)
+KEY_ID=$(echo &quot;$RESP&quot; | jq -r .signatureKeyId)
+PUBKEY_MB=$(echo &quot;$DID&quot; | jq -r --arg id &quot;$KEY_ID&quot; '.verificationMethod[] | select(.id==$id) | .publicKeyMultibase')
+echo &quot;key reference: $KEY_ID&quot;
+echo &quot;key (multibase): $PUBKEY_MB&quot;
+# Reconstruct the canonical signable, hash, decode signature, verify -- left as
+# an exercise for the reader, or just use the Python or TypeScript SDK.
+</code></pre>
+<p>The shell version is illustrative; in real deployments use the SDK. The Python <code>attestseal-x402</code> package (<code>pip install attestseal-x402</code>) wraps all of this in <code>attestseal_x402.client.verify(response)</code> and handles DID-document caching automatically.</p>
+<h2 id="common-verification-failures">Common verification failures</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signature verifies but <code>parentFloorInherited</code> is <code>true</code></td>
+<td>Future-proofing field; today this should never happen, and an agent seeing it should treat the attestation as suspicious.</td>
+</tr>
+<tr>
+<td>Signature fails on what looks like a valid response</td>
+<td>Canonical signable form mismatch. Most often the caller is including a field that isn&rsquo;t signed (like <code>checklist</code>) or excluding a field that is (like <code>reputationSources</code>). The signed list is the one in the Python example above.</td>
+</tr>
+<tr>
+<td>DID document fetch returns 404</td>
+<td>Ensure you are fetching <code>https://attestseal.com/.well-known/did.json</code> (not <code>attestseal.com/.well-known/did:web:attestseal.com.json</code>). The <code>did:web:</code> scheme always maps to the <code>.well-known/did.json</code> path.</td>
+</tr>
+<tr>
+<td><code>signatureKeyId</code> not found in DID document</td>
+<td>Either you have a stale DID document (re-fetch) or the attestation is signed by a key the issuer no longer publishes (very rare; usually means a long-cached attestation that survived a key rotation).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="summary">Summary</h2>
+<p>An AttestSeal attestation is a signed JSON document with five field families: identity (who signed it and for what), recommendation (PROCEED/CAUTION/DENY plus basis), registry layer (shape of the domain), signal evidence (raw inputs), and meta. The signature covers exactly the fields the agent needs to make a payment decision; verification is local once the DID document is cached. The SDKs handle this for you, but the protocol is simple enough that you can implement it from scratch in a couple hundred lines if you want to.</p>
+<p>Read the response. Verify the signature. Apply policy keyed on <code>assuranceBasis</code>. That&rsquo;s the whole job.</p>
+<hr />
+<p><em>Reference: <a href="../../spec/X-ATTESTSEAL-HEADERS.md"><code>X-AttestSeal-*</code> Header Specification</a> for the same schema delivered alongside an x402 402 response. SDK: <a href="https://github.com/AttestSeal/attestseal/tree/main/sdk/x402"><code>attestseal-x402</code></a> on PyPI (post-launch).</em></p>
+  </article>
+</main>
+<footer>
+  <div>&copy; 2026 AttestSeal, Inc. &middot; Independent trust attestation for AI agent commerce.</div>
+  <div>
+    <a href="https://github.com/AttestSeal/attestseal">GitHub</a> &middot;
+    <a href="https://status.attestseal.com">Status</a> &middot;
+    <a href="mailto:alu@attestseal.com">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

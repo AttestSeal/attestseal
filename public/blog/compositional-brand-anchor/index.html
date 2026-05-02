@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Compositional Brand Anchor -- AttestSeal</title>
+<meta name="description" content="How does a &quot;popularity rank&quot; become a security primitive? Through composition. We walk through why Tranco-rank plus aged domain plus clean reputation plus valid SSL is a stronger signal than any one of those alone, and why it cannot be spoofed.">
+<meta property="og:title" content="The Compositional Brand Anchor">
+<meta property="og:description" content="How does a &quot;popularity rank&quot; become a security primitive? Through composition. We walk through why Tranco-rank plus aged domain plus clean reputation plus valid SSL is a stronger signal than any one of those alone, and why it cannot be spoofed.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="/assets/brand/ats-logo-full.png">
+<link rel="icon" type="image/png" href="/assets/brand/ats-logo-icon.png">
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+:root{
+  --ink:#07121f;
+  --ink-2:#10243a;
+  --ink-3:#193957;
+  --ink-4:#2a4768;
+  --paper:#ffffff;
+  --paper-2:#f6f9fc;
+  --paper-3:#eef5fb;
+  --text:#142033;
+  --text-soft:#3a4a63;
+  --line:#d8e1ec;
+  --line-2:#c0cfdf;
+  --accent:#2563eb;
+  --accent-soft:#dbeafe;
+  --code-bg:#f4f7fb;
+  --font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--paper);font-size:18px;line-height:1.65}
+body{margin:0;font-family:var(--font);color:var(--text);background:var(--paper);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color 144ms ease}
+a:hover,a:focus{border-bottom-color:var(--accent)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip-link{position:absolute;top:-120px;left:20px;z-index:2000;background:var(--ink);color:#fff;padding:12px 16px;border-radius:0 0 8px 8px;font-weight:700;text-decoration:none}
+.skip-link:focus{top:0}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);padding:14px 24px}
+.nav-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav a{color:var(--ink);font-weight:600;border:0}
+.nav a:hover{color:var(--accent)}
+.brand{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:720}
+.brand img{width:28px;height:28px}
+.nav ul{display:flex;list-style:none;margin:0;padding:0;gap:24px;font-size:.95rem}
+main{max-width:760px;margin:0 auto;padding:64px 24px 96px}
+.article-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:14px}
+h1{font-size:2.6rem;font-weight:760;color:var(--ink);line-height:1.15;margin:0 0 18px}
+h2{font-size:1.65rem;font-weight:720;color:var(--ink);line-height:1.25;margin:48px 0 18px}
+h3{font-size:1.2rem;font-weight:680;color:var(--ink);line-height:1.3;margin:36px 0 14px}
+h4{font-size:1.05rem;font-weight:680;color:var(--ink);margin:28px 0 12px}
+p{margin:0 0 1.1em;color:var(--text)}
+.summary{font-size:1.18rem;color:var(--text-soft);line-height:1.55;margin:0 0 16px}
+.byline{font-size:.95rem;color:var(--text-soft);display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.byline .tag{display:inline-block;background:var(--paper-3);color:var(--ink-3);padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600}
+.article p,.article ul,.article ol{font-size:1.05rem}
+.article ul,.article ol{margin:0 0 1.2em;padding-left:1.4em}
+.article li{margin-bottom:.4em}
+.article strong{color:var(--ink)}
+.article em{color:var(--ink-3)}
+.article hr{border:0;border-top:1px solid var(--line);margin:48px 0}
+.article blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:24px 0;color:var(--text-soft);background:var(--paper-2);border-radius:0 6px 6px 0}
+.article code{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--ink-2)}
+.article pre{font-family:var(--mono);background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:18px 20px;overflow-x:auto;font-size:.92rem;line-height:1.55;margin:24px 0}
+.article pre code{background:transparent;padding:0;border-radius:0;color:var(--text)}
+.article table{border-collapse:collapse;width:100%;margin:24px 0;font-size:.95rem}
+.article th,.article td{border:1px solid var(--line);padding:10px 14px;text-align:left;vertical-align:top}
+.article th{background:var(--paper-2);font-weight:680;color:var(--ink)}
+.article tr:nth-child(even) td{background:var(--paper-2)}
+footer{max-width:1080px;margin:0 auto;padding:48px 24px;border-top:1px solid var(--line);font-size:.92rem;color:var(--text-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px}
+footer a{color:var(--text-soft)}
+.hub-list{list-style:none;padding:0;margin:0;display:grid;gap:20px}
+.hub-card{display:block;padding:24px;border:1px solid var(--line);border-radius:12px;background:var(--paper);transition:border-color 144ms ease,transform 144ms ease,box-shadow 144ms ease;color:inherit;border-bottom:1px solid var(--line)}
+.hub-card:hover{border-color:var(--ink-3);transform:translateY(-2px);box-shadow:0 12px 32px rgba(7,18,31,.08)}
+.hub-card .num{font-size:.85rem;font-weight:600;color:var(--ink-3);letter-spacing:.05em}
+.hub-card h3{margin:6px 0 10px;font-size:1.25rem}
+.hub-card .summary{font-size:1rem;color:var(--text-soft);margin:0}
+@media (max-width:680px){
+  html{font-size:17px}
+  h1{font-size:2.05rem}
+  h2{font-size:1.4rem}
+  main{padding:40px 18px 64px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media (prefers-contrast:high){
+  body{background:#fff;color:#000}
+  .article code{background:#fff;border:1px solid #000}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="brand"><img src="/assets/brand/ats-logo-icon.png" alt="" aria-hidden="true">AttestSeal</a>
+    <ul>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/#how-it-works">How it works</a></li>
+      <li><a href="https://github.com/AttestSeal/attestseal">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+<main id="main">
+  <article class="article">
+    <header class="article-header">
+      <div class="eyebrow">AttestSeal Blog</div>
+      <h1>The Compositional Brand Anchor</h1>
+      <p class="summary">How does a &quot;popularity rank&quot; become a security primitive? Through composition. We walk through why Tranco-rank plus aged domain plus clean reputation plus valid SSL is a stronger signal than any one of those alone, and why it cannot be spoofed.</p>
+      <div class="byline">
+        <span>Allen Lu</span>
+        <span>&middot;</span>
+        <time datetime="2026-05-02">2026-05-02</time>
+        <span class="tag">scoring</span> <span class="tag">anti-gaming</span> <span class="tag">methodology</span> <span class="tag">tranco</span>
+      </div>
+    </header>
+    <h1 id="the-compositional-brand-anchor">The Compositional Brand Anchor</h1>
+<p>If you tell someone that your trust scoring system uses Tranco rank as one of its inputs, the immediate reaction is some version of &ldquo;but anyone can buy traffic.&rdquo; It&rsquo;s a reasonable reaction. Tranco is a popularity ranking; popularity rankings have historically been gameable. The first time we showed our scoring model to outside reviewers, we got this objection within five minutes.</p>
+<p>The thing is, we didn&rsquo;t claim Tranco rank was a security primitive. We claimed that Tranco rank <em>combined with three other observable conditions</em> is a security primitive, and the difference between those two claims is the entire point of the design.</p>
+<p>This post explains why.</p>
+<h2 id="what-the-brand-anchor-actually-is">What the brand anchor actually is</h2>
+<p>Inside <code>attestseal-v1.5.1-weights</code>, a domain qualifies as a &ldquo;well-known brand&rdquo; if and only if <strong>all four</strong> of the following are true:</p>
+<ol>
+<li><strong>Tranco rank ≤ 50,000.</strong> (Top 50K of the public internet, as ranked by Tranco&rsquo;s combined Cloudflare/Umbrella/Majestic/Quantcast feed.)</li>
+<li><strong>Domain age ≥ 5 years</strong> (1,825 days from WHOIS registration date).</li>
+<li><strong>SSL valid.</strong> (Cert chain validates, served on port 443.)</li>
+<li><strong>Reputation file clean.</strong> (Not listed in Spamhaus DBL, SURBL, URLhaus, or Google Safe Browsing.)</li>
+</ol>
+<p>If a domain meets all four, it inherits a per-bucket floor on its trust score:</p>
+<table>
+<thead>
+<tr>
+<th>Tranco bucket</th>
+<th>Score floor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top 100</td>
+<td>90</td>
+</tr>
+<tr>
+<td>Top 1,000</td>
+<td>85</td>
+</tr>
+<tr>
+<td>Top 10,000</td>
+<td>80</td>
+</tr>
+<tr>
+<td>Top 50,000</td>
+<td>75</td>
+</tr>
+</tbody>
+</table>
+<p>If any one of the four conditions fails — SSL expires, reputation file gets a hit, the domain is younger than five years, the rank slips out of the top 50K — the floor evaporates and the domain falls back to its weighted-sum score.</p>
+<p>This is what we call the <em>compositional</em> anchor. The trust signal is not &ldquo;high Tranco rank.&rdquo; The trust signal is the <em>conjunction</em> of high Tranco rank, age, SSL, and clean reputation. The four conditions reinforce each other in a way the individual signals do not.</p>
+<h2 id="why-each-condition-alone-is-gameable">Why each condition alone is gameable</h2>
+<p>Pull the four apart and look at them individually. Each one, by itself, fails as a trust signal.</p>
+<p><strong>Tranco rank alone.</strong> An attacker with a botnet can drive synthetic traffic to a domain. Cheap proxy networks can run thousands of concurrent fetches. CDN-traffic-buying schemes can purchase visibility. None of this is hypothetical; black-hat SEO has been doing variants of it for twenty years. A domain at rank 30,000 with a six-week botnet history is a real thing that exists. Treating &ldquo;low Tranco rank&rdquo; as evidence of trust would be naive.</p>
+<p><strong>Domain age alone.</strong> Domain ages can be purchased. The &ldquo;aged domain&rdquo; market is a real market, with brokers, price lists, and quality grades. An attacker who wants a five-year-old domain can have one in a week for under $500. Some of the highest-quality phishing kits explicitly use aged domains to defeat heuristic blockers. Treating &ldquo;old domain&rdquo; as evidence of trust would also be naive.</p>
+<p><strong>Valid SSL alone.</strong> SSL validity is essentially free. Let&rsquo;s Encrypt issues certs to anyone who can prove DNS or HTTP control over a domain, in seconds, at zero cost. A phishing kit that doesn&rsquo;t have a valid SSL cert in 2026 is an unprofessional phishing kit. Treating &ldquo;valid SSL&rdquo; as evidence of trust would be the most naive of all; this signal has been useless on its own since roughly 2018.</p>
+<p><strong>Clean reputation file alone.</strong> Reputation files are reactive, not proactive. A new phishing domain has a clean Spamhaus record on day one because no one has reported it yet. By the time the report lands and the listing happens, the kit has often been operational for hours or days and harvested everything it was going to harvest. Treating &ldquo;not on a blocklist&rdquo; as evidence of trust would only catch the slowest attackers.</p>
+<p>If any one of these were the basis for a trust score, the score would be junk. We&rsquo;d be confident at scale and wrong on every individual call.</p>
+<h2 id="why-all-four-together-work">Why all four together work</h2>
+<p>Now consider an attacker who wants to forge a &ldquo;well-known brand&rdquo; signal under our composite definition. They have to satisfy all four conditions simultaneously.</p>
+<p>To beat <strong>Tranco rank</strong>, they need real, sustained, multi-source-observable traffic. Tranco&rsquo;s feed is built from billions of real-user requests across Cloudflare&rsquo;s resolver, Cisco Umbrella, Majestic, and Quantcast. Spoofing all four sources requires either compromising all four (effectively impossible) or driving genuine human traffic at scale (very expensive). Cheap botnet traffic doesn&rsquo;t show up in Cloudflare-resolver queries the same way human traffic does, doesn&rsquo;t survive Umbrella&rsquo;s heuristics, and doesn&rsquo;t pass Majestic&rsquo;s link-graph cross-reference. Tranco was specifically designed by academic researchers to be resistant to this kind of attack.</p>
+<p>To beat <strong>age ≥ 5 years</strong>, the attacker has to either purchase an aged domain (expensive: $500-$5000 for the kind of brand-relevant aged domain that would carry traffic) or wait five years (impossible for an active attack). Aged domains exist, but they are a finite, slow-to-replenish resource. Buying one and burning it on a single attack is economically unviable for low-stakes fraud and detectable for high-stakes fraud (we cross-reference WHOIS history to flag recent ownership changes; this is shipping in the next collector update).</p>
+<p>To beat <strong>SSL valid</strong>, the attacker needs valid SSL on the aged, top-50K-traffic domain. This is the easiest of the four. Free.</p>
+<p>To beat <strong>clean reputation</strong>, the attacker has to operate the domain <em>without</em> triggering Spamhaus / SURBL / URLhaus / Google Safe Browsing. These systems do not catch fast attacks reliably, but they do catch sustained attacks. A domain that has been in the Tranco top 50K for years (which is what condition 1 requires for credibility under condition 2) is a domain that has been observed sending and receiving billions of internet-scale requests over years. If it had ever been a malware C2, a phishing host, or a spam source, at least one of the four reputation systems would have caught it. The longer the domain&rsquo;s track record, the more reliable the absence of a flag.</p>
+<p>Now the attacker&rsquo;s problem: they need a domain that has been in the public top 50K of the internet, by genuine traffic, for at least five years, without ever having been flagged by any of four major reputation systems, with valid SSL today. Such domains exist. They are owned by Amazon, Google, Microsoft, the BBC, the New York Times, JPMorgan Chase, Walmart, the University of Michigan, and a few hundred thousand others. Compromising one of those domains is a state-actor-level attack. Inventing a fresh one is not possible.</p>
+<p>This is why composition matters. <strong>Each condition leaks a small amount of signal; together they constrain the attacker into a population that is essentially all real, established public entities.</strong></p>
+<h2 id="the-honest-caveats">The honest caveats</h2>
+<p>We do not claim the brand anchor is unbreakable. We claim it is so much more expensive to break than other parts of the system that an attacker would always prefer to attack somewhere else. That&rsquo;s the standard for a security primitive: not &ldquo;perfect,&rdquo; but &ldquo;the easiest path goes through someone else&rsquo;s system.&rdquo;</p>
+<p>Three caveats are worth naming explicitly.</p>
+<p><strong>Compromise of a real well-known brand.</strong> If <code>amazon.com</code>&rsquo;s authoritative DNS is hijacked or a TLS certificate is issued to a malicious party, our brand anchor will continue to fire on that domain until our reputation collectors notice. The window is bounded by our crawl cadence (currently 24 hours for top-Tranco domains and faster for known-suspicious ones) and by the attestation TTL (default 7 days, configurable down). It is not zero. Mitigations: certificate-transparency monitoring, DMARC posture checks, and per-domain anomaly detection are on the post-v1.0 roadmap.</p>
+<p><strong>Tranco rank fraud at the upstream level.</strong> We trust Tranco. If Tranco&rsquo;s feed itself were compromised or manipulated, our brand-rank signal would inherit that compromise. Tranco is an academic project at imec-DistriNet, KU Leuven, and the principals are reputable, but it is a single point of upstream dependence. A future version of the model may add cross-reference against Cloudflare&rsquo;s Radar, Cisco Umbrella&rsquo;s public 1M, and Akamai&rsquo;s traffic data to reduce this dependence.</p>
+<p><strong>Aged dropped domains.</strong> A domain that was registered 10 years ago, dropped 6 months ago, and re-registered last week appears to have a 10-year age in standard WHOIS. We are working on historical-WHOIS integration (via WhoisXMLAPI) to detect ownership changes and downgrade the age signal accordingly. This collector ships dark today (env-flagged off); activating it requires a $20/month commercial WHOIS subscription that we are sizing against the rate of false-positive prevention.</p>
+<p>These caveats matter because we want operators of the system to know exactly where its edges are. We don&rsquo;t claim more than the design supports.</p>
+<h2 id="the-wider-point">The wider point</h2>
+<p>The reason we built the brand anchor compositionally rather than letting Tranco rank carry weight on its own is the same reason we layered every part of the scoring model: <strong>no individual signal is robust enough to bear the weight of a payment decision; conjunctions are.</strong></p>
+<p>Identity verification works because WHOIS disclosure plus SSL OV cert organization plus schema.org markup plus business-directory cross-reference is harder to forge than any one of those alone. SSL trust works because cert chain validity plus TLS version plus HSTS plus OV/EV cert organization is harder to forge than just having a cert. Content trust works because privacy policy presence plus terms of service plus contact info plus security headers is harder to forge than just having one of those.</p>
+<p>The pattern is everywhere in the model. Composition is the design.</p>
+<p>When you see <code>assuranceBasis: well_known_tranco_anchor</code> in an AttestSeal response, the right mental model is not &ldquo;this is a famous site.&rdquo; It is &ldquo;this site has demonstrated the conjunction of public observability, longevity, infrastructure validity, and clean public-record evidence at a level no individual attacker could fabricate.&rdquo; That conjunction is what the agent is paying for when it acts on the recommendation.</p>
+<p>The score is shorthand. The composition is the substance.</p>
+<hr />
+<p><em>See also: <a href="public-legitimacy-vs-merchant-trust.md">Public Legitimacy Is Not Merchant Trust</a> for what the brand anchor </em>doesn&rsquo;t<em> tell you, and <a href="reading-an-attestseal-attestation.md">How to Read an AttestSeal Attestation</a> for the field-level surface where this shows up.</em></p>
+  </article>
+</main>
+<footer>
+  <div>&copy; 2026 AttestSeal, Inc. &middot; Independent trust attestation for AI agent commerce.</div>
+  <div>
+    <a href="https://github.com/AttestSeal/attestseal">GitHub</a> &middot;
+    <a href="https://status.attestseal.com">Status</a> &middot;
+    <a href="mailto:alu@attestseal.com">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

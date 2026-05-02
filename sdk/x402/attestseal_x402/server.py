@@ -143,6 +143,76 @@ if TYPE_CHECKING:
     Send = Callable[[Mapping], Awaitable[None]]
 
 
+class StampingMiddleware:
+    """ASGI middleware that stamps X-AttestSeal-* headers on responses
+    whose status is in ``only_on_status`` (default: 402 only).
+
+    Standard Starlette / FastAPI middleware shape: ``app`` is the first
+    positional, configuration is keyword-only.
+
+    Usage with FastAPI / Starlette::
+
+        from fastapi import FastAPI
+        from attestseal_x402.server import StampingMiddleware, AttestationFetcher
+
+        app = FastAPI()
+        fetcher = AttestationFetcher()
+        app.add_middleware(
+            StampingMiddleware,
+            domain="merchant.example",
+            fetcher=fetcher,
+        )
+
+    The middleware fetches the attestation lazily on the first matching
+    response and reuses the cached value for subsequent requests; it does
+    NOT block request handling on attestation availability.
+    """
+
+    def __init__(
+        self,
+        app,
+        *,
+        domain: str,
+        fetcher: Optional[AttestationFetcher] = None,
+        stamper: Optional[AttestationStamper] = None,
+        only_on_status: tuple[int, ...] = (402,),
+    ) -> None:
+        self.app = app
+        self.domain = domain
+        self.fetcher = fetcher or AttestationFetcher()
+        self.stamper = stamper or AttestationStamper()
+        self.only_on_status = only_on_status
+
+    async def __call__(self, scope, receive, send):
+        if scope.get("type") != "http":
+            return await self.app(scope, receive, send)
+
+        domain = self.domain
+        fetcher = self.fetcher
+        stamper = self.stamper
+        only_on_status = self.only_on_status
+
+        async def send_with_stamp(message):
+            if message.get("type") == "http.response.start":
+                status = int(message.get("status", 200))
+                if status in only_on_status:
+                    attestation = fetcher.get(domain)
+                    if attestation is not None:
+                        extra = stamper.headers_for(attestation)
+                        existing = list(message.get("headers", []))
+                        for name, value in extra.items():
+                            existing.append(
+                                (name.encode("latin-1"), value.encode("latin-1"))
+                            )
+                        message = {**message, "headers": existing}
+            await send(message)
+
+        await self.app(scope, receive, send_with_stamp)
+
+
+# Backwards-compatible factory shim. Some non-FastAPI ASGI hosts prefer a
+# function that accepts ``app`` and returns a callable. New code should
+# prefer :class:`StampingMiddleware` directly via ``app.add_middleware``.
 def asgi_middleware(
     *,
     domain: str,
@@ -150,46 +220,14 @@ def asgi_middleware(
     stamper: Optional[AttestationStamper] = None,
     only_on_status: tuple[int, ...] = (402,),
 ):
-    """Return an ASGI middleware callable that stamps X-AttestSeal-* headers
-    on responses with status codes in ``only_on_status`` (default: 402 only).
-
-    Usage with FastAPI/Starlette::
-
-        from fastapi import FastAPI
-        from attestseal_x402.server import asgi_middleware, AttestationFetcher
-
-        app = FastAPI()
-        fetcher = AttestationFetcher()
-        app.add_middleware(asgi_middleware, domain="merchant.example", fetcher=fetcher)
-
-    The middleware fetches the attestation lazily on the first 402 response
-    and reuses the cached value for subsequent requests; it does NOT block
-    request handling on attestation availability.
-    """
-    fetcher = fetcher or AttestationFetcher()
-    stamper = stamper or AttestationStamper()
-
     def factory(app):
-        async def middleware(scope, receive, send):
-            if scope.get("type") != "http":
-                return await app(scope, receive, send)
-
-            async def send_with_stamp(message):
-                if message.get("type") == "http.response.start":
-                    status = int(message.get("status", 200))
-                    if status in only_on_status:
-                        attestation = fetcher.get(domain)
-                        if attestation is not None:
-                            extra = stamper.headers_for(attestation)
-                            existing = list(message.get("headers", []))
-                            for name, value in extra.items():
-                                existing.append((name.encode("latin-1"), value.encode("latin-1")))
-                            message = {**message, "headers": existing}
-                await send(message)
-
-            await app(scope, receive, send_with_stamp)
-
-        return middleware
+        return StampingMiddleware(
+            app,
+            domain=domain,
+            fetcher=fetcher,
+            stamper=stamper,
+            only_on_status=only_on_status,
+        )
 
     return factory
 

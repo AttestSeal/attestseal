@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public Legitimacy Is Not Merchant Trust -- AttestSeal</title>
+<meta name="description" content="An AttestSeal recommendation of PROCEED tells you a domain is the real entity it appears to be. It does not tell you the operator has been bank-verified. The distinction matters more than it sounds, and we built the API to expose it explicitly.">
+<meta property="og:title" content="Public Legitimacy Is Not Merchant Trust">
+<meta property="og:description" content="An AttestSeal recommendation of PROCEED tells you a domain is the real entity it appears to be. It does not tell you the operator has been bank-verified. The distinction matters more than it sounds, and we built the API to expose it explicitly.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="/assets/brand/ats-logo-full.png">
+<link rel="icon" type="image/png" href="/assets/brand/ats-logo-icon.png">
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+:root{
+  --ink:#07121f;
+  --ink-2:#10243a;
+  --ink-3:#193957;
+  --ink-4:#2a4768;
+  --paper:#ffffff;
+  --paper-2:#f6f9fc;
+  --paper-3:#eef5fb;
+  --text:#142033;
+  --text-soft:#3a4a63;
+  --line:#d8e1ec;
+  --line-2:#c0cfdf;
+  --accent:#2563eb;
+  --accent-soft:#dbeafe;
+  --code-bg:#f4f7fb;
+  --font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--paper);font-size:18px;line-height:1.65}
+body{margin:0;font-family:var(--font);color:var(--text);background:var(--paper);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color 144ms ease}
+a:hover,a:focus{border-bottom-color:var(--accent)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip-link{position:absolute;top:-120px;left:20px;z-index:2000;background:var(--ink);color:#fff;padding:12px 16px;border-radius:0 0 8px 8px;font-weight:700;text-decoration:none}
+.skip-link:focus{top:0}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);padding:14px 24px}
+.nav-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav a{color:var(--ink);font-weight:600;border:0}
+.nav a:hover{color:var(--accent)}
+.brand{display:flex;align-items:center;gap:10px;font-size:1.05rem;font-weight:720}
+.brand img{width:28px;height:28px}
+.nav ul{display:flex;list-style:none;margin:0;padding:0;gap:24px;font-size:.95rem}
+main{max-width:760px;margin:0 auto;padding:64px 24px 96px}
+.article-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:14px}
+h1{font-size:2.6rem;font-weight:760;color:var(--ink);line-height:1.15;margin:0 0 18px}
+h2{font-size:1.65rem;font-weight:720;color:var(--ink);line-height:1.25;margin:48px 0 18px}
+h3{font-size:1.2rem;font-weight:680;color:var(--ink);line-height:1.3;margin:36px 0 14px}
+h4{font-size:1.05rem;font-weight:680;color:var(--ink);margin:28px 0 12px}
+p{margin:0 0 1.1em;color:var(--text)}
+.summary{font-size:1.18rem;color:var(--text-soft);line-height:1.55;margin:0 0 16px}
+.byline{font-size:.95rem;color:var(--text-soft);display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+.byline .tag{display:inline-block;background:var(--paper-3);color:var(--ink-3);padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600}
+.article p,.article ul,.article ol{font-size:1.05rem}
+.article ul,.article ol{margin:0 0 1.2em;padding-left:1.4em}
+.article li{margin-bottom:.4em}
+.article strong{color:var(--ink)}
+.article em{color:var(--ink-3)}
+.article hr{border:0;border-top:1px solid var(--line);margin:48px 0}
+.article blockquote{border-left:3px solid var(--accent);padding:8px 18px;margin:24px 0;color:var(--text-soft);background:var(--paper-2);border-radius:0 6px 6px 0}
+.article code{font-family:var(--mono);font-size:.92em;background:var(--code-bg);padding:2px 6px;border-radius:4px;color:var(--ink-2)}
+.article pre{font-family:var(--mono);background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:18px 20px;overflow-x:auto;font-size:.92rem;line-height:1.55;margin:24px 0}
+.article pre code{background:transparent;padding:0;border-radius:0;color:var(--text)}
+.article table{border-collapse:collapse;width:100%;margin:24px 0;font-size:.95rem}
+.article th,.article td{border:1px solid var(--line);padding:10px 14px;text-align:left;vertical-align:top}
+.article th{background:var(--paper-2);font-weight:680;color:var(--ink)}
+.article tr:nth-child(even) td{background:var(--paper-2)}
+footer{max-width:1080px;margin:0 auto;padding:48px 24px;border-top:1px solid var(--line);font-size:.92rem;color:var(--text-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px}
+footer a{color:var(--text-soft)}
+.hub-list{list-style:none;padding:0;margin:0;display:grid;gap:20px}
+.hub-card{display:block;padding:24px;border:1px solid var(--line);border-radius:12px;background:var(--paper);transition:border-color 144ms ease,transform 144ms ease,box-shadow 144ms ease;color:inherit;border-bottom:1px solid var(--line)}
+.hub-card:hover{border-color:var(--ink-3);transform:translateY(-2px);box-shadow:0 12px 32px rgba(7,18,31,.08)}
+.hub-card .num{font-size:.85rem;font-weight:600;color:var(--ink-3);letter-spacing:.05em}
+.hub-card h3{margin:6px 0 10px;font-size:1.25rem}
+.hub-card .summary{font-size:1rem;color:var(--text-soft);margin:0}
+@media (max-width:680px){
+  html{font-size:17px}
+  h1{font-size:2.05rem}
+  h2{font-size:1.4rem}
+  main{padding:40px 18px 64px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media (prefers-contrast:high){
+  body{background:#fff;color:#000}
+  .article code{background:#fff;border:1px solid #000}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="nav" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="brand"><img src="/assets/brand/ats-logo-icon.png" alt="" aria-hidden="true">AttestSeal</a>
+    <ul>
+      <li><a href="/blog/">Blog</a></li>
+      <li><a href="/#how-it-works">How it works</a></li>
+      <li><a href="https://github.com/AttestSeal/attestseal">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+<main id="main">
+  <article class="article">
+    <header class="article-header">
+      <div class="eyebrow">AttestSeal Blog</div>
+      <h1>Public Legitimacy Is Not Merchant Trust</h1>
+      <p class="summary">An AttestSeal recommendation of PROCEED tells you a domain is the real entity it appears to be. It does not tell you the operator has been bank-verified. The distinction matters more than it sounds, and we built the API to expose it explicitly.</p>
+      <div class="byline">
+        <span>Allen Lu</span>
+        <span>&middot;</span>
+        <time datetime="2026-05-02">2026-05-02</time>
+        <span class="tag">scoring</span> <span class="tag">taxonomy</span> <span class="tag">agent-policy</span> <span class="tag">kyc</span>
+      </div>
+    </header>
+    <h1 id="public-legitimacy-is-not-merchant-trust">Public Legitimacy Is Not Merchant Trust</h1>
+<p>When an agent asks AttestSeal whether to trust <code>acme-widgets.com</code> and we return <code>PROCEED</code>, we are answering a specific question: is this domain almost certainly the real, established public entity it appears to be?</p>
+<p>We are not answering: has the operator behind this domain been business-verified, identity-verified, bank-verified, or insured against chargebacks?</p>
+<p>These two questions sound related. They feel like they should be the same question. They are not, and conflating them causes real failures in agent commerce. This post is about the distinction, why it matters, and how AttestSeal&rsquo;s response surface separates the two so an agent can apply the right policy to each.</p>
+<h2 id="the-two-questions-separated">The two questions, separated</h2>
+<p><strong>Public legitimacy</strong> asks: is this domain who it appears to be? Is <code>amazon.com</code> actually Amazon and not a typosquatted clone? Is <code>kohls.com</code> the real Kohl&rsquo;s department store and not a phishing kit run from a basement? Has this domain existed long enough, with a clean enough reputation, with valid enough infrastructure, that we can be confident it is what it presents itself as?</p>
+<p>This is a question about identity in the public record. It is answerable from observable signals: WHOIS history, SSL chain, Tranco rank over time, reputation file across blocklists, content presence (does the homepage have a privacy policy and contact information?), DNS hygiene. Anyone with a crawler and a year of patience can answer it. AttestSeal&rsquo;s job is to do this at scale, sign the answer, and serve it in two milliseconds.</p>
+<p><strong>Merchant trust</strong> asks something stronger: is this operator someone you should send money to in exchange for goods or services? Have they been onboarded by a payment processor that verified their bank account? Are they covered by chargeback protection? Is there a real human you can sue if the goods don&rsquo;t arrive? Have they been insured? Are they incorporated in a jurisdiction with consumer-protection law you can invoke?</p>
+<p>This is a question about commercial accountability. It is not answerable from observable signals. It requires the merchant to actively verify themselves to a trusted intermediary, hand over identity documents, link a bank account, and accept legal terms. Stripe&rsquo;s onboarding flow answers this question. Skyfire&rsquo;s KYAPay answers this question. AttestSeal&rsquo;s KYC tier answers this question, but only because we built a separate verification flow for it.</p>
+<p>These two questions live on different sides of a fundamental architectural line: <strong>public legitimacy can be observed from the outside; merchant trust requires the operator to opt in.</strong></p>
+<h2 id="why-it-matters-in-practice">Why it matters in practice</h2>
+<p>An agent buying a $0.10 research credit from a top-Tranco news site is operating in the public-legitimacy regime. The agent does not need to know that the news site has been bank-verified. It needs to know that <code>nytimes.com</code> is actually The New York Times and not <code>n-y-times.com</code> set up yesterday. The cost of the error is small (you lose a dime) and the verification is structurally available from public signals.</p>
+<p>An agent buying a $500 product from a Shopify merchant the agent has never heard of is operating in the merchant-trust regime. Public legitimacy is not enough. The merchant might be a real domain with valid SSL and a clean reputation file, but the agent is wiring real money to a real bank account, and the cost of the error is real money lost. The agent needs the merchant to have actively done verification work — submitted business docs, linked a bank, completed KYC — before the agent treats <code>PROCEED</code> as authorization to commit.</p>
+<p>The same domain can have <em>the same observable signals</em> and produce <em>the same trust score</em> for both transactions. It is the <em>policy applied on top of the score</em> that should differ. And the agent can only apply the right policy if the response tells it what kind of trust it has.</p>
+<h2 id="the-taxonomy-attestseal-exposes">The taxonomy AttestSeal exposes</h2>
+<p>Every AttestSeal response carries an <code>assuranceBasis</code> field that names <em>why</em> the recommendation is what it is. The values are deliberately ladder-shaped:</p>
+<table>
+<thead>
+<tr>
+<th>Basis</th>
+<th>What it means</th>
+<th>What it doesn&rsquo;t mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>well_known_tranco_anchor</code></td>
+<td>This is the real public entity. Top-50K Tranco rank, valid SSL, clean reputation, 5+ years of domain age. The brand-anchor floor lifted the score.</td>
+<td>The operator is bank-verified, KYC&rsquo;d, or commercially accountable.</td>
+</tr>
+<tr>
+<td><code>earned_proceed</code></td>
+<td>The score crossed 70 on signal merit alone. SSL is valid, reputation is clean, content is present, no anchor was needed.</td>
+<td>Anything more than the signals say.</td>
+</tr>
+<tr>
+<td><code>tenant_platform_earned</code> / <code>infrastructure_earned</code> / <code>api_service_earned</code></td>
+<td>Same as <code>earned_proceed</code>, but the domain is shaped like a tenant platform (vercel.app), infrastructure (cloudflare.com), or an API endpoint (api.openai.com). The <code>_earned</code> suffix tells the agent the score was earned, not inherited from the parent&rsquo;s reputation.</td>
+<td>The agent should treat this as automatically equivalent to a known consumer brand.</td>
+</tr>
+<tr>
+<td><code>registered_proceed</code></td>
+<td>The operator completed AttestSeal registration, proved domain control, and submitted business fields (legal name, address, EIN/VAT, contact info) which we cross-referenced.</td>
+<td>KYC has been performed.</td>
+</tr>
+<tr>
+<td><code>kyc_verified</code></td>
+<td>Government ID, business documents, bank link, and video call have all been completed.</td>
+<td>(Nothing more; this is the highest tier.)</td>
+</tr>
+<tr>
+<td><code>tracking</code></td>
+<td>Domain is in our registry as ad/analytics infrastructure (e.g., <code>doubleclick.net</code>). Always blocked from PROCEED regardless of score.</td>
+<td>(n/a, this is a refusal.)</td>
+</tr>
+<tr>
+<td><code>not_recommended</code></td>
+<td>Score below threshold or a safety flag fired.</td>
+<td>(n/a, this is a refusal.)</td>
+</tr>
+</tbody>
+</table>
+<p>An agent that treats all PROCEED values as equivalent is making a category error. An agent that uses the basis to apply per-tier transaction limits is doing the right thing.</p>
+<p>A reasonable default policy looks like:</p>
+<pre><code class="language-python">LIMITS_BY_BASIS = {
+    &quot;kyc_verified&quot;:             None,    # no per-transaction cap
+    &quot;registered_proceed&quot;:       50.00,
+    &quot;well_known_tranco_anchor&quot;: 5.00,    # top brands; small per-txn limit, no KYC
+    &quot;earned_proceed&quot;:           1.00,
+    &quot;tenant_platform_earned&quot;:   1.00,
+    &quot;infrastructure_earned&quot;:    1.00,
+    &quot;api_service_earned&quot;:       2.00,    # API endpoints common in agent commerce
+    # tracking and not_recommended → don't pay
+}
+</code></pre>
+<p>The exact numbers will be specific to the agent operator, the user&rsquo;s risk tolerance, and the kind of work the agent is doing. The point is that they should be specific to the basis, not collapsed into a single value for &ldquo;PROCEED.&rdquo;</p>
+<h2 id="why-we-dont-quietly-upgrade-the-basis">Why we don&rsquo;t quietly upgrade the basis</h2>
+<p>We could, in principle, treat <code>well_known_tranco_anchor</code> as more or less equivalent to <code>kyc_verified</code> for top-Tranco brands and let agents stop worrying about the distinction. We deliberately do not.</p>
+<p>The reason is that <code>well_known_tranco_anchor</code> answers a categorically different question than <code>kyc_verified</code>. It answers &ldquo;who is this?&rdquo; with high confidence. It does not answer &ldquo;what happens when I send them $500 and the goods don&rsquo;t arrive?&rdquo; An attacker who compromises a top-Tranco brand&rsquo;s TLS endpoint inherits the brand-anchor floor for the duration of the compromise. (We have safeguards: revocation flags downgrade the score immediately, and our short attestation TTL bounds the worst case to days, not months.) But the failure mode of compromise looks different from the failure mode of a registered, KYC&rsquo;d merchant going bad — the legal recourse, insurance posture, and recovery path are not the same. Agents should be able to apply different policies to those two cases, which means the response has to expose the distinction explicitly.</p>
+<p>Conflating them upgrades the cosmetic experience for top brands at the cost of erasing the policy surface for everyone else. We picked the policy surface.</p>
+<h2 id="what-this-means-for-merchants">What this means for merchants</h2>
+<p>A consumer brand that wants <code>PROCEED</code> from AttestSeal usually doesn&rsquo;t have to do anything. If you are top-50K Tranco, valid SSL, five-plus years of domain age, no malware/phishing/spam in your reputation file, you already qualify and you already get <code>well_known_tranco_anchor</code>. We are not in the business of charging you to attest to facts that are publicly verifiable. This tier is permanently free.</p>
+<p>A merchant that wants the higher-trust tiers — and the higher transaction limits agents will associate with them — registers with us. Registration is structured: legal business name, address, EIN/VAT, phone, email, social profiles. We cross-reference the fields against WHOIS, SSL certificate organization, public business registries, and your DMARC posture. Verified fields earn points; unverified fields do not. Once you&rsquo;ve collected enough points, your basis upgrades to <code>registered_proceed</code>, and agents that apply higher limits to that tier start trusting you for more.</p>
+<p>KYC is the next step beyond registration. We partner with identity-verification providers (Stripe Identity, Onfido, Jumio, depending on jurisdiction) to verify a real human, real business documents, a linked bank account, and a video confirmation. Merchants who complete this earn <code>kyc_verified</code>, which is the only tier that should be treated as merchant-grade trust by an agent.</p>
+<p>The ladder gives every operator a path to higher trust. It also keeps the lower tiers honest about what they are and aren&rsquo;t. That is the design.</p>
+<h2 id="what-this-means-for-agent-developers">What this means for agent developers</h2>
+<p>When you read an AttestSeal response, look at three fields together: <code>recommendation</code>, <code>assuranceBasis</code>, and <code>agentPolicyHint</code>. The recommendation tells you the answer to &ldquo;should I proceed at all?&rdquo; The basis tells you the <em>kind</em> of trust the recommendation rests on. The policy hint translates the basis into an explicit suggestion if you would rather not derive policy yourself.</p>
+<p>If you are writing an agent that handles real money, the assuranceBasis is where your transaction-limit policy should hook. If you are writing a LangChain tool that just looks up trust scores, the recommendation alone is fine. If you are writing the next x402 reference client, you should probably surface the basis to your users so they can write their own policies.</p>
+<p>The taxonomy is not arbitrary. Every line in the ladder corresponds to a real difference in the underlying evidence. Treating them as a single bit erases information that was carefully gathered and signed. Don&rsquo;t do that.</p>
+<hr />
+<p><em>See also: <a href="reading-an-attestseal-attestation.md">Reading an AttestSeal Attestation</a> for a developer walkthrough of the signed response format, and the <a href="../../spec/X-ATTESTSEAL-HEADERS.md"><code>X-AttestSeal-*</code> Header Specification</a> for how the basis is delivered alongside x402 payment challenges.</em></p>
+  </article>
+</main>
+<footer>
+  <div>&copy; 2026 AttestSeal, Inc. &middot; Independent trust attestation for AI agent commerce.</div>
+  <div>
+    <a href="https://github.com/AttestSeal/attestseal">GitHub</a> &middot;
+    <a href="https://status.attestseal.com">Status</a> &middot;
+    <a href="mailto:alu@attestseal.com">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

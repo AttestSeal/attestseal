@@ -1,0 +1,22 @@
+[Unit]
+Description=AttestSeal x402 demo (demo.attestseal.com)
+After=network.target attestseal.service
+
+[Service]
+Type=simple
+User=ats
+Group=ats
+WorkingDirectory=/opt/attestseal-demo
+Environment=DEMO_DOMAIN=demo.attestseal.com
+ExecStart=/opt/attestseal-demo/venv/bin/python3 -m uvicorn app:app --host 127.0.0.1 --port 8901
+Restart=on-failure
+RestartSec=5s
+MemoryHigh=256M
+MemoryMax=384M
+NoNewPrivileges=yes
+PrivateTmp=yes
+StandardOutput=append:/var/log/attestseal-demo.log
+StandardError=append:/var/log/attestseal-demo.log
+
+[Install]
+WantedBy=multi-user.target

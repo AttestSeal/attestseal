@@ -20,7 +20,7 @@ import secrets
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from attestseal_x402.server import asgi_middleware, AttestationFetcher
+from attestseal_x402.server import StampingMiddleware, AttestationFetcher
 
 DOMAIN = os.environ.get("DEMO_DOMAIN", "demo.attestseal.com")
 PRICE_USD = "0.10"
@@ -30,9 +30,22 @@ DEMO_DESTINATION = "0x0000000000000000000000000000000000000000"  # demo only
 app = FastAPI(title="AttestSeal x402 demo", version="0.1.0")
 
 # Stamp X-AttestSeal-* on every 402 response. The fetcher caches the
-# attestation for demo.attestseal.com for up to 24 hours.
+# attestation for DOMAIN for up to 24 hours.
 fetcher = AttestationFetcher()
-app.add_middleware(asgi_middleware, domain=DOMAIN, fetcher=fetcher, only_on_status=(402,))
+app.add_middleware(StampingMiddleware, domain=DOMAIN, fetcher=fetcher, only_on_status=(402,))
+
+
+@app.on_event("startup")
+def _warm_attestation_cache() -> None:
+    # The synchronous fetcher inside the async middleware can lose the race
+    # against the response on a cold first request: the response goes out
+    # before the upstream API call completes, leaving the very first 402
+    # without X-AttestSeal-* headers. Pre-warming on startup makes every
+    # request from request 1 onwards a guaranteed cache hit.
+    try:
+        fetcher.get(DOMAIN)
+    except Exception:
+        pass
 
 
 HOME_HTML = """<!DOCTYPE html>
