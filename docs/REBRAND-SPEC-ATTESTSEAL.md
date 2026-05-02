@@ -131,9 +131,30 @@ opentrustseal.com cert keeps renewing until we destroy the legacy box.
 - [ ] Registration page (`/register.html`)
 - [ ] Email templates: `docs/MERCHANT-OUTREACH-EMAIL.md`
 - [ ] Upptime status: rebuild as `AttestSeal/status` repo, CNAME `status.attestseal.com`
-- [ ] Logos: `otslogo.png` -> `attestseal-logo.png`, redesign or rerender
+- [ ] Logos: replace placeholder `attestseal-logo.png` / `attestseal-seal.png` / `attestseal-logo-legacy.png` with real assets from `~/.../robots/attestseal/`:
+  - `ATSLogoFull.png` (blue circle + green checkmark + ATTESTSEAL wordmark) -> use as primary logo, README header, social embed
+  - `ATSLogoIcon.png` (mark only, no wordmark) -> use as favicon, app icon, dashboard nav
+  - `ATSLogoFull.ai` and `ATSLogoIcon.ai` are Illustrator sources, kept in repo for future export size variants
 - [ ] Python SDK: package name `opentrustseal` -> `attestseal` for PyPI
 - [ ] TypeScript SDK: `@opentrustseal/sdk` -> `@attestseal/sdk` for npm
+
+## Repo-level migration at cutover
+
+Move `~/.../robots/opentrusttoken/` contents into `~/.../robots/attestseal/`
+(the folder that already holds the new logo assets). At cutover:
+
+```bash
+cd ~/.../robots
+# attestseal/ already exists with the logo assets; merge opentrusttoken/ into it
+mv opentrusttoken/* attestseal/
+mv opentrusttoken/.git attestseal/.git
+rmdir opentrusttoken
+# verify everything moved cleanly, then commit on rebrand-attestseal branch
+```
+
+After this, the local working dir is `~/.../robots/attestseal/` and the repo
+remote can be renamed on GitHub (`OpenTrustSeal/opentrustseal` ->
+`AttestSeal/attestseal`) -- automatic 301 redirects handle old clones.
 
 ## Cutover sequence
 
